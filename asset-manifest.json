@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/lease-calculator-app/static/css/main.816fc9ce.chunk.css",
+    "main.js": "/lease-calculator-app/static/js/main.95113609.chunk.js",
+    "main.js.map": "/lease-calculator-app/static/js/main.95113609.chunk.js.map",
+    "runtime-main.js": "/lease-calculator-app/static/js/runtime-main.3a0eb232.js",
+    "runtime-main.js.map": "/lease-calculator-app/static/js/runtime-main.3a0eb232.js.map",
+    "static/css/2.d788185a.chunk.css": "/lease-calculator-app/static/css/2.d788185a.chunk.css",
+    "static/js/2.1ecf7d7d.chunk.js": "/lease-calculator-app/static/js/2.1ecf7d7d.chunk.js",
+    "static/js/2.1ecf7d7d.chunk.js.map": "/lease-calculator-app/static/js/2.1ecf7d7d.chunk.js.map",
+    "index.html": "/lease-calculator-app/index.html",
+    "precache-manifest.dd9701281ff96fa3fa9efcb274164ea5.js": "/lease-calculator-app/precache-manifest.dd9701281ff96fa3fa9efcb274164ea5.js",
+    "service-worker.js": "/lease-calculator-app/service-worker.js",
+    "static/css/2.d788185a.chunk.css.map": "/lease-calculator-app/static/css/2.d788185a.chunk.css.map",
+    "static/css/main.816fc9ce.chunk.css.map": "/lease-calculator-app/static/css/main.816fc9ce.chunk.css.map",
+    "static/js/2.1ecf7d7d.chunk.js.LICENSE.txt": "/lease-calculator-app/static/js/2.1ecf7d7d.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.3a0eb232.js",
+    "static/css/2.d788185a.chunk.css",
+    "static/js/2.1ecf7d7d.chunk.js",
+    "static/css/main.816fc9ce.chunk.css",
+    "static/js/main.95113609.chunk.js"
+  ]
+}
