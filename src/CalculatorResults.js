@@ -161,7 +161,7 @@ export default class CalculatorResults extends React.Component {
                     <Button
                       className="footer-icon desktop"
                       type="link"
-                      href="https://www.facebook.com/groups/1914738435321873"
+                      href="https://github.com/ErezNagar/lease-calculator-app"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
