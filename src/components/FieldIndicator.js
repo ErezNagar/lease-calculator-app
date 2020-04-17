@@ -1,30 +1,53 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { CheckCircleTwoTone, CloseCircleTwoTone } from "@ant-design/icons";
+import withTooltip from "./withTooltip";
 
-const FieldIndicator = ({ text, isAboveThreshold, isError }) =>
+const FieldIndicator = ({
+  fieldText,
+  isAboveThreshold,
+  isError,
+  onMouseEnter,
+  onMouseLeave,
+}) =>
   isError ? (
     "-"
   ) : (
     <>
-      {text}
+      {fieldText}
       {isAboveThreshold ? (
-        <CheckCircleTwoTone twoToneColor="#52c41a" className="threshold-icon" />
+        <CheckCircleTwoTone
+          twoToneColor="#52c41a"
+          className="threshold-icon"
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+          onClick={onMouseEnter}
+        />
       ) : (
-        <CloseCircleTwoTone twoToneColor="#eb2f96" className="threshold-icon" />
+        <CloseCircleTwoTone
+          twoToneColor="#eb2f96"
+          className="threshold-icon"
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+          onClick={onMouseEnter}
+        />
       )}
     </>
   );
 
 FieldIndicator.propTypes = {
-  text: PropTypes.string.isRequired,
+  fieldText: PropTypes.string.isRequired,
   isAboveThreshold: PropTypes.bool,
   isError: PropTypes.bool,
+  onMouseEnter: PropTypes.func,
+  onMouseLeave: PropTypes.func,
 };
 
 FieldIndicator.defaultProps = {
   isAboveThreshold: false,
   isError: false,
+  onMouseEnter() {},
+  onMouseLeave() {},
 };
 
-export default FieldIndicator;
+export default withTooltip(FieldIndicator);

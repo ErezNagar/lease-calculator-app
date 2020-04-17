@@ -1,35 +1,37 @@
 import React from "react";
 import PropTypes from "prop-types";
 import BaseField from "./BaseScreen";
-import ReadMoreLink from "../components/ReadMoreLink";
+import ReadMoreLink from "./../ReadMoreLink";
 
-const RV = (props) => (
+const MF = (props) => (
   <BaseField
-    title="Residual Value"
+    title="Money Factor"
     description={
       <>
         <span>
-          The value of the vehicle at the end of the lease. The higher, the
-          better.
+          The interest rate on the deal. Same as APR, only using a decimel unit
+          instead. The lower, the better.
         </span>
         <ReadMoreLink href="http://bit.ly/LeaseMFRV" />
       </>
     }
-    fieldName="rv"
-    suffix={"%"}
+    fieldName="mf"
+    placeholder={0.00123}
+    prefix={""}
+    suffix={""}
     onClickNext={props.onClickNext}
     onClickBack={props.onClickBack}
   />
 );
 
-RV.propTypes = {
+MF.propTypes = {
   onClickNext: PropTypes.func,
   onClickBack: PropTypes.func,
 };
 
-RV.defaultProps = {
+MF.defaultProps = {
   onClickNext() {},
   onClickBack() {},
 };
 
-export default RV;
+export default MF;

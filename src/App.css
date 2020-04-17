@@ -219,6 +219,33 @@ body {
   background-color: transparent;
 }
 
+.tooltip {
+  display: block;
+  position: absolute;
+  width: 300px;
+  padding: 5px;
+  color: white;
+  text-align: center;
+  font-size: 0.9em;
+  border-radius: 5px;
+  background-color: #1890ff;
+  box-shadow: 0px 3px 5px lightgray;
+  z-index: 1;
+}
+.tooltip-sellingPrice {
+  top: -50px;
+  left: -100px;
+}
+
+.tooltip-msrpPercent {
+  top: -80px;
+  left: -100px;
+}
+
+.tooltip--hidden {
+  display: none;
+}
+
 @media only screen and (max-device-width: 768px) {
   .pageContainer {
     flex-direction: column;
@@ -266,7 +293,8 @@ body {
 
   .sub-section-navigation {
     height: 20%;
-    padding: 20px 10px;
+    padding: 0;
+    padding: 15px 10px 0;
   }
 
   .ant-row-flex .ant-input-number {

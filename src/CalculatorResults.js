@@ -20,7 +20,6 @@ import {
   FacebookFilled,
   LoadingOutlined,
   MailOutlined,
-  QuestionCircleTwoTone,
 } from "@ant-design/icons";
 import _ from "underscore";
 import LeaseCalculator from "./lease-calculator/LeaseCalculator";
@@ -217,7 +216,7 @@ export default class CalculatorResults extends React.Component {
             <div className="interactive-desc mobile">
               {this.state.isError
                 ? "Something went wrong. Please try again."
-                : "You can change the lease numbers to see how they affect the payment"}
+                : "You can change the lease numbers below to see how they affect the payment"}
             </div>
             <Row gutter={[8, 8]} type="flex" align="middle">
               <Col span={10} className="text-align-right">
@@ -258,7 +257,11 @@ export default class CalculatorResults extends React.Component {
               <Col>
                 <Fade show={this.state.isShowData} fadeInOnly>
                   <FieldIndicator
-                    text={`${this.state.results.offMsrp}% off MSRP`}
+                    fieldText={`${this.state.results.offMsrp}% off MSRP`}
+                    tooltipContent={
+                      "Ideally, the negotiated selling price is at least 10% off of MSRP."
+                    }
+                    cssClass={"sellingPrice"}
                     isAboveThreshold={this.state.results.isOffMsrpThreshold}
                     isError={this.state.isError}
                   />
@@ -413,23 +416,20 @@ export default class CalculatorResults extends React.Component {
                 {"% of MSRP:"}
               </Col>
               <Col className="text-align-left">
-                <Fade show={this.state.isShowData} fadeInOnly>
-                  <>
-                    <FieldIndicator
-                      text={`${this.state.results.msrpPercentage}%`}
-                      isAboveThreshold={
-                        this.state.results.isMsrpPercentageThreshold
-                      }
-                      isError={this.state.isError}
-                    />
-                    <a
-                      href="http://bit.ly/Lease1PercentRule"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <QuestionCircleTwoTone className="threshold-icon" />
-                    </a>
-                  </>
+                <Fade
+                  show={this.state.isShowData}
+                  fadeInOnly
+                  style={{ width: "100%" }}
+                >
+                  <FieldIndicator
+                    fieldText={`${this.state.results.msrpPercentage}%`}
+                    tooltipContent="As a rule of thumb, a reasonable monthly payment for a good deal is 1% percent of MSRP."
+                    cssClass={"msrpPercent"}
+                    isAboveThreshold={
+                      this.state.results.isMsrpPercentageThreshold
+                    }
+                    isError={this.state.isError}
+                  />
                 </Fade>
               </Col>
             </Row>
@@ -466,7 +466,7 @@ export default class CalculatorResults extends React.Component {
                 <Button
                   className="footer-icon mobile"
                   type="link"
-                  href="https://github.com/ErezNagar/lease-calcuator-app"
+                  href="https://github.com/ErezNagar/lease-calculator-app"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

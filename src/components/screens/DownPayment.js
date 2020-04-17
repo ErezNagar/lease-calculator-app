@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import BaseField from "./BaseScreen";
-import ReadMoreLink from "../components/ReadMoreLink";
+import ReadMoreLink from "./../ReadMoreLink";
 
 const DownPayment = (props) => (
   <BaseField

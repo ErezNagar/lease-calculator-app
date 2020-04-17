@@ -2,8 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import { InputNumber, Button } from "antd";
 import { RightOutlined, LeftOutlined } from "@ant-design/icons";
-import Fade from "../components/Fade";
-import { SCREEN_CHANGE_DELAY, ESC_KEY, RIGHT_KEY } from "../constants";
+import Fade from "../Fade";
+import { SCREEN_CHANGE_DELAY, ESC_KEY, RIGHT_KEY } from "../../constants";
 
 export default class BaseField extends React.Component {
   static propTypes = {
@@ -144,6 +144,7 @@ export default class BaseField extends React.Component {
                 type="primary"
                 onClick={this.handleClickBack}
                 disabled={this.state.isMSRPField}
+                size="large"
               >
                 <LeftOutlined />
                 Back
@@ -154,6 +155,7 @@ export default class BaseField extends React.Component {
                 type="primary"
                 onClick={this.handleClickNext}
                 disabled={this.state.isNextDisabled}
+                size="large"
               >
                 Next
                 <RightOutlined />

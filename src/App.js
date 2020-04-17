@@ -1,16 +1,16 @@
 import React from "react";
 import "./App.css";
-// import Make from "./screens/Make";
-import Msrp from "./screens/Msrp";
-import SellingPrice from "./screens/SellingPrice";
-import Months from "./screens/Months";
-// import Miles from "./screens/Miles";
-import MF from "./screens/MF";
-import RV from "./screens/RV";
-import DownPayment from "./screens/DownPayment";
-import Rebates from "./screens/Rebates";
-import Fees from "./screens/Fees";
-import SalesTax from "./screens/SalesTax";
+// import Make from "./components/screens/Make";
+import Msrp from "./components/screens/Msrp";
+import SellingPrice from "./components/screens/SellingPrice";
+import Months from "./components/screens/Months";
+// import Miles from "./components/screens/Miles";
+import MF from "./components/screens/MF";
+import RV from "./components/screens/RV";
+import DownPayment from "./components/screens/DownPayment";
+import Rebates from "./components/screens/Rebates";
+import Fees from "./components/screens/Fees";
+import SalesTax from "./components/screens/SalesTax";
 import CalculatorResults from "./CalculatorResults";
 import { Progress } from "antd";
 

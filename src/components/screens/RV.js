@@ -1,33 +1,35 @@
 import React from "react";
 import PropTypes from "prop-types";
 import BaseField from "./BaseScreen";
-import ReadMoreLink from "../components/ReadMoreLink";
+import ReadMoreLink from "./../ReadMoreLink";
 
-const Fees = (props) => (
+const RV = (props) => (
   <BaseField
-    title="Fees"
+    title="Residual Value"
     description={
       <>
         <span>
-          Total amount of fees: acquisition fee, dealer and government fees.
+          The value of the vehicle at the end of the lease. The higher, the
+          better.
         </span>
-        <ReadMoreLink href="http://bit.ly/LeaseFees" />
+        <ReadMoreLink href="http://bit.ly/LeaseMFRV" />
       </>
     }
-    fieldName="totalFees"
+    fieldName="rv"
+    suffix={"%"}
     onClickNext={props.onClickNext}
     onClickBack={props.onClickBack}
   />
 );
 
-Fees.propTypes = {
+RV.propTypes = {
   onClickNext: PropTypes.func,
   onClickBack: PropTypes.func,
 };
 
-Fees.defaultProps = {
+RV.defaultProps = {
   onClickNext() {},
   onClickBack() {},
 };
 
-export default Fees;
+export default RV;
