@@ -6,7 +6,7 @@ const Msrp = (props) => (
   <BaseField
     title="Months"
     description="The length of the lease. More than 36 is less than ideal since usually the manufacturer warranty is for 3 years."
-    fieldName="months"
+    fieldName="leaseTerm"
     placeholder={36}
     prefix={""}
     suffix={""}

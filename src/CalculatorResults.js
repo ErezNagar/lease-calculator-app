@@ -54,10 +54,7 @@ export default class CalculatorResults extends React.Component {
   };
 
   state = {
-    data: {
-      ...this.props.data,
-      leaseTerm: this.props.data.months,
-    },
+    data: { ...this.props.data },
     results: {},
     isLoading: false,
     isShowData: true,
@@ -82,6 +79,7 @@ export default class CalculatorResults extends React.Component {
       msrpPercentage,
       offMsrp,
       RVValue: leaseCalculator.getRVValue(),
+      RVPercent: leaseCalculator.getRVPercentage(),
       apr: leaseCalculator.getAPR(),
       totalCost: leaseCalculator.getTotalLeaseCost(),
       monthlyPaymentPreTax: leaseCalculator.getMonthlyPaymentPreTax(),
@@ -101,6 +99,8 @@ export default class CalculatorResults extends React.Component {
   debounce = _.debounce((value, field) => {
     const state = { ...this.state };
     state.data[field] = value;
+    // Only the RV percent is editable
+    state.data.isRVPercent = true;
     this.setState(state, () => {
       const results = this.calculateLease(this.state.data);
       if (!results) {
@@ -274,8 +274,8 @@ export default class CalculatorResults extends React.Component {
               </Col>
               <Col className="text-align-left">
                 <InputNumber
-                  defaultValue={this.props.data.months}
-                  onChange={(v) => this.handleChange(v, "months")}
+                  defaultValue={this.props.data.leaseTerm}
+                  onChange={(v) => this.handleChange(v, "leaseTerm")}
                   onPressEnter={this.handleClick}
                   size="large"
                 />
@@ -310,7 +310,7 @@ export default class CalculatorResults extends React.Component {
               </Col>
               <Col span={10} className="text-align-left">
                 <InputNumber
-                  defaultValue={this.props.data.rv}
+                  value={this.state.results.RVPercent}
                   formatter={(value) => `${value}%`}
                   parser={(value) => value.replace("%", "")}
                   onChange={(v) => this.handleChange(v, "rv")}
