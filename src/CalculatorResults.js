@@ -33,7 +33,7 @@ export default class CalculatorResults extends React.Component {
     data: PropTypes.shape({
       msrp: PropTypes.number.isRequired,
       sellingPrice: PropTypes.number.isRequired,
-      months: PropTypes.number.isRequired,
+      leaseTerm: PropTypes.number.isRequired,
       mf: PropTypes.number.isRequired,
       rv: PropTypes.number.isRequired,
       isRVPercent: PropTypes.bool.isRequired,

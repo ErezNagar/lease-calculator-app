@@ -45,6 +45,9 @@ export default class App extends React.Component {
     let { currentScreen } = this.state;
     const leaseData = { ...this.state.leaseData };
     leaseData[input.field] = input.value;
+    if (input.field === "rv") {
+      leaseData.isRVPercent = input.isRVPercent;
+    }
     const isLastScreen = currentScreen + 1 === SCREENS.length;
     if (!isLastScreen) {
       currentScreen += 1;
