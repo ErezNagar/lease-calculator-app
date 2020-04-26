@@ -35,12 +35,13 @@ export default class BaseField extends React.Component {
     usePercentRV: true,
     isRVField: this.props.fieldName === "rv",
     isMSRPField: this.props.fieldName === "msrp",
+    isDownPaymentField: this.props.fieldName === "downPayment",
   };
 
   handleChange = (value) => {
     this.setState({
       value,
-      isNextDisabled: !value,
+      isNextDisabled: this.state.isDownPaymentField ? value === "" : !value,
     });
   };
 
@@ -62,7 +63,7 @@ export default class BaseField extends React.Component {
   };
 
   handleClickNext = () => {
-    if (this.state.isNextDisabled) {
+    if (this.state.isNextDisabled && !this.state.isDownPaymentField) {
       return;
     }
     this.setState({ show: false }, () => {
