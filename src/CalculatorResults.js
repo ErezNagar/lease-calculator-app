@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import LeaseCalculator from "lease-calculator";
 import {
   InputNumber,
   Divider,
@@ -22,7 +23,6 @@ import {
   MailOutlined,
 } from "@ant-design/icons";
 import _ from "underscore";
-import LeaseCalculator from "./lease-calculator/LeaseCalculator";
 import Fade from "./components/Fade";
 import FieldIndicator from "./components/FieldIndicator";
 

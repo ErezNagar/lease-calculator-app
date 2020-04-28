@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.0](https://github.com/ErezNagar/lease-calculator-app/compare/v0.2.3...v0.3.0) - 27/4/2020
+
+### Changed
+
+- Using official lease-calculator package release as dependency
+
 ## [0.2.3](https://github.com/ErezNagar/lease-calculator-app/compare/v0.2.2...v0.2.3) - 21/4/2020
 
 ### Fixed
