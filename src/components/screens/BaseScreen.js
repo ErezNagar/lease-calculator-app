@@ -124,7 +124,7 @@ export default class BaseField extends React.Component {
                 onKeyUp={this.handleKeyUp}
                 size="large"
                 type={"number"}
-                min={0}
+                min={-1}
                 autoFocus
               />
               {this.getSuffix()}
