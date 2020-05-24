@@ -41,7 +41,9 @@ export default class BaseField extends React.Component {
   handleChange = (value) => {
     this.setState({
       value,
-      isNextDisabled: this.state.isDownPaymentField ? value === "" : !value,
+      isNextDisabled: this.state.isDownPaymentField
+        ? value.length === 0
+        : !value,
     });
   };
 
