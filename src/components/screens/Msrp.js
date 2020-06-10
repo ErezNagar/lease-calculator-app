@@ -10,6 +10,8 @@ const Msrp = (props) => (
     description="Manufacturer Suggested Retail Price. No one really pays the full MSRP of a vehicle, don't be the one that does."
     fieldName="msrp"
     onClickNext={props.onClickNext}
+    onClickSkipWizard={props.onClickSkipWizard}
+    showSkipWizardButton
   />
 );
 

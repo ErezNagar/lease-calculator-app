@@ -16,6 +16,8 @@ export default class BaseField extends React.Component {
     parser: PropTypes.func,
     onClickNext: PropTypes.func,
     onClickBack: PropTypes.func,
+    onClickSkipWizard: PropTypes.func,
+    showSkipWizardButton: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -26,13 +28,15 @@ export default class BaseField extends React.Component {
     parser: (value) => value.replace(/\$\s?|(,*)/g, ""),
     onClickNext() {},
     onClickBack() {},
+    onClickSkipWizard() {},
+    showSkipWizardButton: false,
   };
 
   state = {
     value: 0,
     isNextDisabled: true,
     show: true,
-    usePercentRV: true,
+    usePercentRV: false,
     isRVField: this.props.fieldName === "rv",
     isMSRPField: this.props.fieldName === "msrp",
     isDownPaymentField: this.props.fieldName === "downPayment",
@@ -60,6 +64,14 @@ export default class BaseField extends React.Component {
     this.setState({ show: false }, () => {
       setTimeout(() => {
         this.props.onClickBack();
+      }, SCREEN_CHANGE_DELAY);
+    });
+  };
+
+  handleClickSkipWizard = () => {
+    this.setState({ show: false }, () => {
+      setTimeout(() => {
+        this.props.onClickSkipWizard();
       }, SCREEN_CHANGE_DELAY);
     });
   };
@@ -142,7 +154,13 @@ export default class BaseField extends React.Component {
             </Fade>
           </div>
           <div className="sub-section-navigation">
-            <div className="button-container button-left">
+            <div
+              className={
+                this.props.showSkipWizardButton
+                  ? "button-container button-left narrow"
+                  : "button-container button-left"
+              }
+            >
               <Button
                 type="primary"
                 onClick={this.handleClickBack}
@@ -153,7 +171,30 @@ export default class BaseField extends React.Component {
                 Back
               </Button>
             </div>
-            <div className="button-container button-right">
+            {this.props.showSkipWizardButton && (
+              <div
+                className={
+                  this.props.showSkipWizardButton
+                    ? "button-container narrow"
+                    : "button-container"
+                }
+              >
+                <Button
+                  type="primary"
+                  onClick={this.handleClickSkipWizard}
+                  size="large"
+                >
+                  Skip Wizard
+                </Button>
+              </div>
+            )}
+            <div
+              className={
+                this.props.showSkipWizardButton
+                  ? "button-container button-right narrow"
+                  : "button-container button-right"
+              }
+            >
               <Button
                 type="primary"
                 onClick={this.handleClickNext}

@@ -54,16 +54,26 @@ export default class CalculatorResults extends React.Component {
   };
 
   state = {
-    data: { ...this.props.data },
+    input: {
+      ...this.props.data,
+      // We're only working with % RV after initial input
+      isRVPercent: true,
+    },
     results: {},
     isLoading: false,
-    isShowData: true,
     isError: false,
   };
 
   componentDidMount() {
-    const data = this.calculateLease(this.props.data);
-    this.setState({ results: { ...data } });
+    const results = this.calculateLease(this.props.data);
+    this.setState({
+      results: { ...results },
+      input: {
+        ...this.state.input,
+        // We're only working with % RV after initial input
+        rv: results.RVPercent,
+      },
+    });
   }
 
   calculateLease = (data) => {
@@ -91,18 +101,16 @@ export default class CalculatorResults extends React.Component {
   };
 
   handleChange = (value, field) => {
-    this.setState({ isLoading: true, isShowData: false }, () => {
+    this.setState({ isLoading: true }, () => {
       this.debounce(value, field);
     });
   };
 
   debounce = _.debounce((value, field) => {
     const state = { ...this.state };
-    state.data[field] = value;
-    // Only the RV percent is editable
-    state.data.isRVPercent = true;
+    state.input[field] = value;
     this.setState(state, () => {
-      const results = this.calculateLease(this.state.data);
+      const results = this.calculateLease(this.state.input);
       if (!results) {
         this.setState({
           isError: true,
@@ -113,7 +121,6 @@ export default class CalculatorResults extends React.Component {
       this.setState({
         ...this.state,
         results: { ...results },
-        isShowData: true,
         isLoading: false,
         isError: false,
       });
@@ -132,7 +139,7 @@ export default class CalculatorResults extends React.Component {
           <div className="section section--description results flex-vertical-center">
             <div className="monthly-payment desktop">
               <div className="title">{"Monthly Payment"}</div>
-              <Fade show={this.state.isShowData} fadeInOnly>
+              <Fade show={!this.state.isLoading} fadeInOnly>
                 <div className="description">
                   {this.state.isError ? (
                     <span className="input-error">-</span>
@@ -191,7 +198,7 @@ export default class CalculatorResults extends React.Component {
             </div>
             <div className="monthly-payment mobile">
               <span className="title">{"Monthly Payment:"}</span>
-              <Fade show={this.state.isShowData} fadeInOnly isInline>
+              <Fade show={!this.state.isLoading} fadeInOnly isInline>
                 <span className="description">
                   {this.state.isError ? (
                     <span className="input-error">-</span>
@@ -255,7 +262,7 @@ export default class CalculatorResults extends React.Component {
             <Row gutter={[16, 16]} type="flex" align="middle">
               <Col span={10}></Col>
               <Col>
-                <Fade show={this.state.isShowData} fadeInOnly>
+                <Fade show={!this.state.isLoading} fadeInOnly>
                   <FieldIndicator
                     fieldText={`${this.state.results.offMsrp}% off MSRP`}
                     tooltipContent={
@@ -299,7 +306,7 @@ export default class CalculatorResults extends React.Component {
             <Row gutter={[16, 16]} type="flex" align="middle">
               <Col span={10}></Col>
               <Col>
-                <Fade show={this.state.isShowData} fadeInOnly>
+                <Fade show={!this.state.isLoading} fadeInOnly>
                   {this.state.isError ? "-" : `${this.state.results.apr}% APR`}
                 </Fade>
               </Col>
@@ -322,7 +329,7 @@ export default class CalculatorResults extends React.Component {
             <Row gutter={[16, 16]} type="flex" align="middle">
               <Col span={10}></Col>
               <Col>
-                <Fade show={this.state.isShowData} fadeInOnly>
+                <Fade show={!this.state.isLoading} fadeInOnly>
                   {this.state.isError ? "-" : `$${this.state.results.RVValue}`}
                 </Fade>
               </Col>
@@ -398,7 +405,7 @@ export default class CalculatorResults extends React.Component {
                 {"Monthly Pre-Tax:"}
               </Col>
               <Col className="text-align-left">
-                <Fade show={this.state.isShowData} fadeInOnly>
+                <Fade show={!this.state.isLoading} fadeInOnly>
                   {this.state.isError ? (
                     <span className="input-error">-</span>
                   ) : (
@@ -417,7 +424,7 @@ export default class CalculatorResults extends React.Component {
               </Col>
               <Col className="text-align-left">
                 <Fade
-                  show={this.state.isShowData}
+                  show={!this.state.isLoading}
                   fadeInOnly
                   style={{ width: "100%" }}
                 >
@@ -438,7 +445,7 @@ export default class CalculatorResults extends React.Component {
                 {"Total Cost:"}
               </Col>
               <Col className="text-align-left">
-                <Fade show={this.state.isShowData} fadeInOnly>
+                <Fade show={!this.state.isLoading} fadeInOnly>
                   {this.state.isError ? (
                     <span className="input-error">-</span>
                   ) : (

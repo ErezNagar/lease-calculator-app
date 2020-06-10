@@ -13,6 +13,7 @@ import Fees from "./components/screens/Fees";
 import SalesTax from "./components/screens/SalesTax";
 import CalculatorResults from "./CalculatorResults";
 import { Progress } from "antd";
+import { DUMMY_LEASE_ZERO_DOWN_DATA } from "./constants";
 
 const SCREENS = [
   // Make,
@@ -59,6 +60,13 @@ export default class App extends React.Component {
     });
   };
 
+  handleClickSkipWizard = () => {
+    this.setState({
+      isLastScreen: true,
+      leaseData: DUMMY_LEASE_ZERO_DOWN_DATA,
+    });
+  };
+
   render() {
     const Screen = SCREENS[this.state.currentScreen];
     return this.state.isLastScreen ? (
@@ -75,7 +83,8 @@ export default class App extends React.Component {
           progress={this.state.currentScreen / SCREENS.length}
           onClickNext={this.handleClickNext}
           onClickBack={this.handleClickBack}
-        ></Screen>
+          onClickSkipWizard={this.handleClickSkipWizard}
+        />
       </>
     );
   }

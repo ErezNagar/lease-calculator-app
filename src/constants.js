@@ -9,3 +9,16 @@ export const SCREEN_CHANGE_DELAY = 500;
 
 export const ESC_KEY = 27;
 export const RIGHT_KEY = 39;
+
+export const DUMMY_LEASE_ZERO_DOWN_DATA = {
+  msrp: 33000,
+  sellingPrice: 29500,
+  rv: 21110,
+  isRVPercent: false,
+  mf: 0.0012,
+  leaseTerm: 36,
+  salesTax: 6.25,
+  totalFees: 1100,
+  rebates: 1000,
+  downPayment: 0,
+};
