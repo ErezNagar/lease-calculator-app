@@ -14,6 +14,7 @@ import SalesTax from "./components/screens/SalesTax";
 import CalculatorResults from "./CalculatorResults";
 import { Progress } from "antd";
 import { DUMMY_LEASE_ZERO_DOWN_DATA } from "./constants";
+import queryString from "query-string";
 
 const SCREENS = [
   // Make,
@@ -34,6 +35,34 @@ export default class App extends React.Component {
     currentScreen: 0,
     isLastScreen: false,
     leaseData: {},
+  };
+
+  componentDidMount() {
+    const queryStringData = this.getQueryParams();
+    const hasQueryStringData =
+      queryStringData && Object.keys(queryStringData).length > 0;
+    if (hasQueryStringData) {
+      this.setState({
+        leaseData: {
+          ...DUMMY_LEASE_ZERO_DOWN_DATA,
+          ...queryStringData,
+          isRVPercent: true,
+        },
+        isLastScreen: true,
+      });
+    }
+  }
+
+  getQueryParams = () => {
+    const queryParams = queryString.parse(window.location.search);
+    for (var key of Object.keys(queryParams)) {
+      if (key === "mf" || key === "salesTax") {
+        queryParams[key] = parseFloat(queryParams[key]);
+      } else {
+        queryParams[key] = parseInt(queryParams[key]);
+      }
+    }
+    return queryParams;
   };
 
   handleClickBack = () => {

@@ -250,6 +250,10 @@ body {
   display: none;
 }
 
+.share-container {
+  margin-top: 5em;
+}
+
 @media only screen and (max-device-width: 768px) {
   .pageContainer {
     flex-direction: column;
@@ -308,6 +312,10 @@ body {
   .interactive-desc {
     padding: 0 10px;
     margin: 15px 0;
+  }
+
+  .share-container {
+    margin-top: 1em;
   }
 }
 

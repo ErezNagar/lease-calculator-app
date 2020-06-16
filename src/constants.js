@@ -10,6 +10,10 @@ export const SCREEN_CHANGE_DELAY = 500;
 export const ESC_KEY = 27;
 export const RIGHT_KEY = 39;
 
+export const SHARE_BUTTON_TEXT = "Share your numbers";
+export const SHARE_BUTTON_SUCCESS_CLICK_TEXT = "Link copied!";
+export const SHARE_BUTTON_SUCCESS_MESSAGE_DELAY = 4000;
+
 export const DUMMY_LEASE_ZERO_DOWN_DATA = {
   msrp: 33000,
   sellingPrice: 29500,

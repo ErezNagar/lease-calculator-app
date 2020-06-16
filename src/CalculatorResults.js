@@ -15,6 +15,10 @@ import {
   MONTHLY_PAYMENT_TO_MSRP_THRESHOLD,
   OFF_MSRP_THRESHOLD,
   RESULTS_CHANGE_DELAY,
+  DUMMY_LEASE_ZERO_DOWN_DATA,
+  SHARE_BUTTON_TEXT,
+  SHARE_BUTTON_SUCCESS_CLICK_TEXT,
+  SHARE_BUTTON_SUCCESS_MESSAGE_DELAY,
 } from "./constants";
 import {
   GithubOutlined,
@@ -25,18 +29,19 @@ import {
 import _ from "underscore";
 import Fade from "./components/Fade";
 import FieldIndicator from "./components/FieldIndicator";
+import queryString from "query-string";
 
 const leaseCalculator = new LeaseCalculator();
 
 export default class CalculatorResults extends React.Component {
   static propTypes = {
     data: PropTypes.shape({
-      msrp: PropTypes.number.isRequired,
-      sellingPrice: PropTypes.number.isRequired,
-      leaseTerm: PropTypes.number.isRequired,
-      mf: PropTypes.number.isRequired,
-      rv: PropTypes.number.isRequired,
-      isRVPercent: PropTypes.bool.isRequired,
+      msrp: PropTypes.number,
+      sellingPrice: PropTypes.number,
+      leaseTerm: PropTypes.number,
+      mf: PropTypes.number,
+      rv: PropTypes.number,
+      isRVPercent: PropTypes.bool,
       downPayment: PropTypes.number,
       rebates: PropTypes.number,
       totalFees: PropTypes.number,
@@ -46,10 +51,8 @@ export default class CalculatorResults extends React.Component {
 
   static defaultProps = {
     data: {
+      ...DUMMY_LEASE_ZERO_DOWN_DATA,
       downPayment: 0,
-      rebates: 0,
-      totalFees: 0,
-      salesTax: 0,
     },
   };
 
@@ -62,6 +65,7 @@ export default class CalculatorResults extends React.Component {
     results: {},
     isLoading: false,
     isError: false,
+    shareButtonText: SHARE_BUTTON_TEXT,
   };
 
   componentDidMount() {
@@ -127,6 +131,29 @@ export default class CalculatorResults extends React.Component {
     });
   }, RESULTS_CHANGE_DELAY);
 
+  handleShareCalculation = () => {
+    const { isRVPercent, ...data } = this.state.input;
+    const url = `${window.location.origin}?${queryString.stringify(data)}`;
+    navigator.permissions.query({ name: "clipboard-write" }).then((res) => {
+      if (res.state === "granted" || res.state === "prompt") {
+        navigator.clipboard.writeText(url).then(() => {
+          this.setState(
+            {
+              shareButtonText: SHARE_BUTTON_SUCCESS_CLICK_TEXT,
+            },
+            () => {
+              setTimeout(() => {
+                this.setState({
+                  shareButtonText: SHARE_BUTTON_TEXT,
+                });
+              }, SHARE_BUTTON_SUCCESS_MESSAGE_DELAY);
+            }
+          );
+        });
+      }
+    });
+  };
+
   render() {
     return (
       <>
@@ -155,6 +182,15 @@ export default class CalculatorResults extends React.Component {
                     {this.state.isError
                       ? "Something went wrong. Please try again."
                       : "Here's your monthly payment. You can change the lease numbers on the right to see how they affect the payment."}
+                  </div>
+                  <div className="share-container desktop">
+                    <Button
+                      type="primary"
+                      onClick={this.handleShareCalculation}
+                      size="large"
+                    >
+                      {this.state.shareButtonText}
+                    </Button>
                   </div>
                 </div>
                 <div className="footer desktop">
@@ -458,6 +494,15 @@ export default class CalculatorResults extends React.Component {
                 </Fade>
               </Col>
             </Row>
+            <div className="share-container mobile">
+              <Button
+                type="primary"
+                onClick={this.handleShareCalculation}
+                size="large"
+              >
+                {this.state.shareButtonText}
+              </Button>
+            </div>
           </div>
           <div className="footer mobile">
             <div className="divider">
