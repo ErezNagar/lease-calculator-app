@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/lease-calculator-app/precache-manifest.80b998a8b46880a1ab74b08eefd954d6.js"
+  "/lease-calculator-app/precache-manifest.7cf9006f54582da06a5f400bc009cfa8.js"
 );
 
 self.addEventListener('message', (event) => {
