@@ -133,7 +133,9 @@ export default class CalculatorResults extends React.Component {
 
   handleShareCalculation = () => {
     const { isRVPercent, ...data } = this.state.input;
-    const url = `${window.location.origin}?${queryString.stringify(data)}`;
+    const url = `${window.location.origin}${
+      window.location.pathname
+    }?${queryString.stringify(data)}`;
     navigator.permissions.query({ name: "clipboard-write" }).then((res) => {
       if (res.state === "granted" || res.state === "prompt") {
         navigator.clipboard.writeText(url).then(() => {

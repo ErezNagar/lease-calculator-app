@@ -5,11 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.5.1](https://github.com/ErezNagar/lease-calculator-app/compare/v0.5.1...v0.5.1) - 15/6/2020
+
+### Fixed
+
+- A bug in the sharing query string parsing where the pathname was missing
+
 ## [0.5.0](https://github.com/ErezNagar/lease-calculator-app/compare/v0.4.0...v0.5.0) - 15/6/2020
 
 ### Added
 
-- Ability to share the results of the calclator
+- Ability to share calculator results
 
 ## [0.4.0](https://github.com/ErezNagar/lease-calculator-app/compare/v0.3.1...v0.4.0) - 9/6/2020
 

@@ -1,7 +1,7 @@
 {
   "name": "lease-calculator-app",
   "description": "A simple car lease calculator web app",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "private": true,
   "repository": {
     "type": "git",
