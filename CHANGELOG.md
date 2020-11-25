@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.0](https://github.com/ErezNagar/lease-calculator-app/compare/v0.5.1...v1.0.0) - 24/11/2020
+
+### Changed
+
+- New UI
+
+### Added
+
+- Support for multiple taxation methods
+- Acquisition and disposition fees by manufacturer
+
 ## [0.5.1](https://github.com/ErezNagar/lease-calculator-app/compare/v0.5.1...v0.5.1) - 15/6/2020
 
 ### Fixed
