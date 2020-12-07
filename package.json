@@ -28,11 +28,12 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "test": "react-scripts test",
     "build": "react-scripts build",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "version": "npm run deploy && git add *",
+    "postversion": "git push && git push --tags && rm -rf build"
   },
   "eslintConfig": {
     "extends": "react-app"

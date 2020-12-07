@@ -312,7 +312,9 @@ export default class Calculator extends React.Component {
                               formatter={(v) => v}
                               onChange={this.handleChange}
                               onPressEnter={this.handleClick}
-                              min={0.0005}
+                              min={0.0000001}
+                              step={0.0001}
+                              max={0.02}
                             />
                           </Col>
                           <Col xs={24} sm={10} className={"text-align-left"}>
