@@ -174,21 +174,7 @@ export default class Calculator extends React.Component {
       navigator.permissions?.query({ name: "clipboard-write" }).then((res) => {
         if (res.state === "granted" || res.state === "prompt") {
           navigator.clipboard.writeText(url).then(() => {
-            setTimeout(() => {
-              this.setState(
-                {
-                  shareButtonLoading: false,
-                  shareButtonHelperText: SHARE_BUTTON_SUCCESS_CLICK_TEXT,
-                },
-                () => {
-                  setTimeout(() => {
-                    this.setState({
-                      shareButtonHelperText: SHARE_BUTTON_HELPER_TEXT,
-                    });
-                  }, SHARE_BUTTON_SUCCESS_MESSAGE_DELAY);
-                }
-              );
-            }, SHARE_BUTTON_DELAY);
+            this.showShareSuccess();
           });
         }
       });
@@ -199,22 +185,26 @@ export default class Calculator extends React.Component {
       textField.select();
       document.execCommand("copy");
       textField.remove();
-      setTimeout(() => {
-        this.setState(
-          {
-            shareButtonLoading: false,
-            shareButtonHelperText: SHARE_BUTTON_SUCCESS_CLICK_TEXT,
-          },
-          () => {
-            setTimeout(() => {
-              this.setState({
-                shareButtonHelperText: SHARE_BUTTON_HELPER_TEXT,
-              });
-            }, SHARE_BUTTON_SUCCESS_MESSAGE_DELAY);
-          }
-        );
-      }, SHARE_BUTTON_DELAY);
+      this.showShareSuccess();
     }
+  };
+
+  showShareSuccess = () => {
+    setTimeout(() => {
+      this.setState(
+        {
+          shareButtonLoading: false,
+          shareButtonHelperText: SHARE_BUTTON_SUCCESS_CLICK_TEXT,
+        },
+        () => {
+          setTimeout(() => {
+            this.setState({
+              shareButtonHelperText: SHARE_BUTTON_HELPER_TEXT,
+            });
+          }, SHARE_BUTTON_SUCCESS_MESSAGE_DELAY);
+        }
+      );
+    }, SHARE_BUTTON_DELAY);
   };
 
   render() {
