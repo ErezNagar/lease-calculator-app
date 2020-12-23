@@ -4,15 +4,15 @@ export const MONTHLY_PAYMENT_TO_MSRP_THRESHOLD = 1;
 export const OFF_MSRP_THRESHOLD = 10;
 // Results onChange loading delay
 export const RESULTS_CHANGE_DELAY = 10;
-// Animation delay when swtiching between Screens (fields)
-export const SCREEN_CHANGE_DELAY = 500;
 
 export const ESC_KEY = 27;
 export const RIGHT_KEY = 39;
 
 export const SHARE_BUTTON_TEXT = "Share your numbers";
+export const SHARE_BUTTON_HELPER_TEXT = "Click to copy a shareable link";
 export const SHARE_BUTTON_SUCCESS_CLICK_TEXT = "Link copied!";
-export const SHARE_BUTTON_SUCCESS_MESSAGE_DELAY = 1000;
+export const SHARE_BUTTON_DELAY = 1000;
+export const SHARE_BUTTON_SUCCESS_MESSAGE_DELAY = 3000;
 
 export const MAKE = [
   {

@@ -3,6 +3,10 @@ import PropTypes from "prop-types";
 import LeaseCalculator from "lease-calculator";
 import { Statistic, Row, Col, Button, Dropdown, Menu, Radio } from "antd";
 import {
+  SHARE_BUTTON_DELAY,
+  SHARE_BUTTON_TEXT,
+  SHARE_BUTTON_SUCCESS_CLICK_TEXT,
+  SHARE_BUTTON_HELPER_TEXT,
   MONTHLY_PAYMENT_TO_MSRP_THRESHOLD,
   OFF_MSRP_THRESHOLD,
   RESULTS_CHANGE_DELAY,
@@ -53,6 +57,7 @@ export default class Calculator extends React.Component {
     results: {},
     isLoading: false,
     shareButtonLoading: false,
+    shareButtonHelperText: SHARE_BUTTON_HELPER_TEXT,
   };
 
   componentDidMount() {
@@ -138,7 +143,7 @@ export default class Calculator extends React.Component {
   };
 
   handleChange = (value, field) => {
-    if (value && !isNaN(value) && !isNaN(parseFloat(value))) {
+    if (value === 0 || (value && !isNaN(value) && !isNaN(parseFloat(value)))) {
       this.debounce(value, field);
     }
   };
@@ -170,10 +175,20 @@ export default class Calculator extends React.Component {
         if (res.state === "granted" || res.state === "prompt") {
           navigator.clipboard.writeText(url).then(() => {
             setTimeout(() => {
-              this.setState({
-                shareButtonLoading: false,
-              });
-            }, SHARE_BUTTON_SUCCESS_MESSAGE_DELAY);
+              this.setState(
+                {
+                  shareButtonLoading: false,
+                  shareButtonHelperText: SHARE_BUTTON_SUCCESS_CLICK_TEXT,
+                },
+                () => {
+                  setTimeout(() => {
+                    this.setState({
+                      shareButtonHelperText: SHARE_BUTTON_HELPER_TEXT,
+                    });
+                  }, SHARE_BUTTON_SUCCESS_MESSAGE_DELAY);
+                }
+              );
+            }, SHARE_BUTTON_DELAY);
           });
         }
       });
@@ -185,10 +200,20 @@ export default class Calculator extends React.Component {
       document.execCommand("copy");
       textField.remove();
       setTimeout(() => {
-        this.setState({
-          shareButtonLoading: false,
-        });
-      }, SHARE_BUTTON_SUCCESS_MESSAGE_DELAY);
+        this.setState(
+          {
+            shareButtonLoading: false,
+            shareButtonHelperText: SHARE_BUTTON_SUCCESS_CLICK_TEXT,
+          },
+          () => {
+            setTimeout(() => {
+              this.setState({
+                shareButtonHelperText: SHARE_BUTTON_HELPER_TEXT,
+              });
+            }, SHARE_BUTTON_SUCCESS_MESSAGE_DELAY);
+          }
+        );
+      }, SHARE_BUTTON_DELAY);
     }
   };
 
@@ -567,12 +592,12 @@ export default class Calculator extends React.Component {
                       loading={this.state.shareButtonLoading}
                       onClick={this.handleShareCalculation}
                     >
-                      Share your numbers
+                      {SHARE_BUTTON_TEXT}
                     </Button>
                   </Col>
                 </Row>
                 <Row align="middle" justify="center">
-                  <Col>Click to copy a shareable link</Col>
+                  <Col>{this.state.shareButtonHelperText}</Col>
                 </Row>
               </div>
             </Col>
