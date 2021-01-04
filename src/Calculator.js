@@ -407,6 +407,21 @@ export default class Calculator extends React.Component {
                         />
                       </Col>
                     </Row>
+                    <Row gutter={[8, 0]} align="middle">
+                      <Col className={"text-align-left"}>
+                        {
+                          "Not sure which incentives you're eligible for? Find out using our "
+                        }
+                        <a
+                          href="http://bit.ly/IncentiveLookup"
+                          title="Incentives Lookup tool"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Incentives Lookup tool
+                        </a>
+                      </Col>
+                    </Row>
                   </>
                 }
               />
