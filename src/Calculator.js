@@ -1,7 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
 import LeaseCalculator from "lease-calculator";
-import { Statistic, Row, Col, Button, Dropdown, Menu, Radio } from "antd";
+import {
+  Statistic,
+  Row,
+  Col,
+  Button,
+  Dropdown,
+  Menu,
+  Radio,
+  Checkbox,
+} from "antd";
 import {
   SHARE_BUTTON_DELAY,
   SHARE_BUTTON_TEXT,
@@ -58,6 +67,7 @@ export default class Calculator extends React.Component {
     isLoading: false,
     shareButtonLoading: false,
     shareButtonHelperText: SHARE_BUTTON_HELPER_TEXT,
+    isZeroDriveOff: false,
   };
 
   componentDidMount() {
@@ -205,6 +215,10 @@ export default class Calculator extends React.Component {
         }
       );
     }, SHARE_BUTTON_DELAY);
+  };
+
+  handleChangeZeroDriveOff = (e) => {
+    this.debounce(e.target.checked, "isZeroDriveoff");
   };
 
   render() {
@@ -439,6 +453,16 @@ export default class Calculator extends React.Component {
                           value={this.state.fields.governmentFees}
                           onChange={this.handleChange}
                         />
+                      </Col>
+                    </Row>
+                    <Row gutter={[8, 8]} align="middle">
+                      <Col xs={10} sm={8} className={"text-align-left"}>
+                        {"Zero Drive-Off"}
+                      </Col>
+                      <Col xs={14} sm={16} className={"text-align-left"}>
+                        <Checkbox onChange={this.handleChangeZeroDriveOff}>
+                          Capitalize fees and taxes
+                        </Checkbox>
                       </Col>
                     </Row>
                     <Row gutter={[8, 8]} align="middle">
