@@ -112,6 +112,7 @@ export default class Calculator extends React.Component {
 
     const msrpPercentage = leaseCalculator.getMonthlyPaymentToMsrpPercentage();
     const offMsrp = leaseCalculator.getDiscountOffMsrpPercentage();
+    const driveOffDetails = leaseCalculator.getDriveOffPaymentDetails();
     this.setState({
       fields: { ...data },
       results: {
@@ -129,6 +130,7 @@ export default class Calculator extends React.Component {
         driveOff: leaseCalculator.getDriveOffPayment(),
         acquisitionFee: leaseCalculator.getAcquisitionFee(),
         dispositionFee: leaseCalculator.getDispositionFee(),
+        driveOffDetails: driveOffDetails,
       },
     });
   };
@@ -567,7 +569,12 @@ export default class Calculator extends React.Component {
                           </Fade>
                         </Col>
                       </Row>
-                      <Row gutter={[8, 8]} align="middle">
+                      <Row
+                        gutter={
+                          this.state.results.driveOffDetails ? [8, 0] : [8, 8]
+                        }
+                        align="middle"
+                      >
                         <Col xs={13} sm={10} className={"text-align-left"}>
                           {"Drive off:"}
                         </Col>
@@ -581,6 +588,31 @@ export default class Calculator extends React.Component {
                           </Fade>
                         </Col>
                       </Row>
+                      {this.state.results.driveOffDetails &&
+                        this.state.results.driveOffDetails.map((item) => {
+                          return (
+                            <div className="driveoff-details" key={item.type}>
+                              <Row gutter={[0, 0]} align="middle">
+                                <Col
+                                  xs={13}
+                                  sm={10}
+                                  className={"text-align-left"}
+                                >
+                                  {`${item.label}:`}
+                                </Col>
+                                <Col xs={11} sm={14}>
+                                  <Fade show={!this.state.isLoading} fadeInOnly>
+                                    <Statistic
+                                      value={`${item.amount}`}
+                                      precision={2}
+                                      prefix="$"
+                                    />
+                                  </Fade>
+                                </Col>
+                              </Row>
+                            </div>
+                          );
+                        })}
                       <Row gutter={[8, 8]} align="middle">
                         <Col xs={13} sm={10} className={"text-align-left"}>
                           {"Disposition Fee:"}

@@ -124,6 +124,14 @@ footer a {
 .text-align-left {
   text-align: left;
 }
+.driveoff-details {
+  margin-top: -0.15em;
+  margin-left: 1.5em;
+  font-size: 0.9em;
+}
+.driveoff-details .ant-statistic-content {
+  font-size: 1em;
+}
 .ant-statistic.inline,
 .ant-statistic.inline .ant-statistic-content,
 .fade-inline {
