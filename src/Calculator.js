@@ -105,7 +105,7 @@ export default class Calculator extends React.Component {
         ...rest,
       });
     } catch (e) {
-      // TODO implement erro fallback
+      // TODO implement error fallback
       console.log("e", e);
       return;
     }
@@ -302,9 +302,13 @@ export default class Calculator extends React.Component {
                             />
                           </Col>
                           <Col xs={24} sm={14} className={"text-align-left"}>
-                            <Fade show={!this.state.isLoading} fadeInOnly>
-                              {`${this.state.results.offMsrp}% off MSRP`}
-                            </Fade>
+                            {this.state.results.offMsrp ? (
+                              <Fade show={!this.state.isLoading} fadeInOnly>
+                                {`${this.state.results.offMsrp}% off MSRP`}
+                              </Fade>
+                            ) : (
+                              "No dealer discount"
+                            )}
                           </Col>
                         </Row>
                       </Col>
