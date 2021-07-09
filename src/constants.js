@@ -135,5 +135,6 @@ export const DUMMY_DEFAULT_LEASE_DATA = {
   governmentFees: 300,
   incentives: 500,
   // rebates: 500,
+  isZeroDriveoff: false,
   taxMethod: TAXATION_METHOD_MONTHLY,
 };

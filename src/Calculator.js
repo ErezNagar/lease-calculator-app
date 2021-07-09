@@ -67,7 +67,6 @@ export default class Calculator extends React.Component {
     isLoading: false,
     shareButtonLoading: false,
     shareButtonHelperText: SHARE_BUTTON_HELPER_TEXT,
-    isZeroDriveOff: false,
   };
 
   componentDidMount() {
@@ -85,14 +84,16 @@ export default class Calculator extends React.Component {
       return null;
     }
     Object.keys(query).forEach((key) => {
-      query[key] =
-        key === "mf" || key === "salesTax"
-          ? (query[key] = parseFloat(query[key]))
-          : (query[key] = parseInt(query[key]));
+      if (key === "mf" || key === "salesTax") {
+        query[key] = parseFloat(query[key]);
+      } else if (key === "isZeroDriveoff") {
+        query[key] = query[key] === "true";
+      } else {
+        query[key] = parseInt(query[key]);
+      }
     });
     return { make: query.makeId, ...query };
   };
-
   calculateLease = (data) => {
     const leaseCalculator = new LeaseCalculator();
     const { incentives, dealerFees, governmentFees, make, ...rest } = data;
@@ -481,7 +482,10 @@ export default class Calculator extends React.Component {
                         {"Zero Drive-Off"}
                       </Col>
                       <Col xs={14} sm={16} className={"text-align-left"}>
-                        <Checkbox onChange={this.handleChangeZeroDriveOff}>
+                        <Checkbox
+                          checked={this.state.fields.isZeroDriveoff}
+                          onChange={this.handleChangeZeroDriveOff}
+                        >
                           Capitalize fees and taxes
                         </Checkbox>
                       </Col>
