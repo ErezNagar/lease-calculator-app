@@ -145,13 +145,13 @@ export const DUMMY_DEFAULT_LEASE_DATA = {
 
 export const DUMMY_DEFAULT_FINANCE_DATA = {
   msrp: 50000,
-  sellingPrice: 49000,
+  sellingPrice: 45000,
   salesTax: 6.25,
   financeTerm: 60,
-  taxableFees: 0,
-  untaxableFees: 0,
+  taxableFees: 250,
+  untaxableFees: 300,
   APR: 4.5,
   downPayment: 0,
   tradeIn: 0,
-  rebates: 1999,
+  rebates: 0,
 };

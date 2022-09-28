@@ -714,7 +714,7 @@ export default class Calculator extends React.Component {
                           </Col>
                           <Col xs={14} sm={16} className={"text-align-left"}>
                             <InputPercentageField
-                              fieldName={"financeSalesTax"}
+                              fieldName={"salesTax"}
                               value={this.state.finance.fields.salesTax}
                               onChange={this.handleChange}
                             />
@@ -726,7 +726,7 @@ export default class Calculator extends React.Component {
                           </Col>
                           <Col xs={14} sm={16} className={"text-align-left"}>
                             <InputNumberField
-                              fieldName={"financeRebates"}
+                              fieldName={"rebates"}
                               value={this.state.finance.fields.rebates}
                               onChange={this.handleChange}
                             />
