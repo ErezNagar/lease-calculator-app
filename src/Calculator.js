@@ -167,11 +167,17 @@ export default class Calculator extends React.Component {
   calculateFinance = (data) => {
     const leaseCalculator = new LeaseCalculator();
     const results = leaseCalculator.calculateFinance(data);
+
+    const { msrp, sellingPrice } = data;
+    const offMsrp = msrp - sellingPrice;
+    const offMsrpPercentage = (offMsrp / msrp) * 100;
+    const offMsrpPercentageRound = Math.round(offMsrpPercentage * 100) / 100;
+
     this.setState({
       finance: {
         fields: { ...data },
         results: {
-          offMsrp: Math.round((data.sellingPrice / data.msrp) * 100) / 100,
+          offMsrp: offMsrpPercentageRound <= 0 ? null : offMsrpPercentageRound,
           monthlyPayment: results.getFinanceMonthlyPayment(),
           principal: results.getTotalAmountFinanced(),
           interest: results.getFinanceTotalInterest(),
@@ -218,7 +224,6 @@ export default class Calculator extends React.Component {
 
   debounce = _.debounce((value, field) => {
     const state = { ...this.state };
-    console.log("value, field", value, field);
     if (this.state.isCalculatorType === CALCULATOR_TYPE_LEASE) {
       state.fields[field] = value;
       this.setState(state, () => {
