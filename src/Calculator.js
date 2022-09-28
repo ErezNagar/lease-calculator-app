@@ -171,6 +171,7 @@ export default class Calculator extends React.Component {
       finance: {
         fields: { ...data },
         results: {
+          offMsrp: Math.round((data.sellingPrice / data.msrp) * 100) / 100,
           monthlyPayment: results.getFinanceMonthlyPayment(),
           principal: results.getTotalAmountFinanced(),
           interest: results.getFinanceTotalInterest(),
@@ -199,9 +200,9 @@ export default class Calculator extends React.Component {
     );
   };
 
-  handleChange = (value, field, fieldType) => {
+  handleChange = (value, field) => {
     if (value === 0 || (value && !isNaN(value) && !isNaN(parseFloat(value)))) {
-      this.debounce(value, field, fieldType);
+      this.debounce(value, field);
     }
   };
 
@@ -217,14 +218,19 @@ export default class Calculator extends React.Component {
 
   debounce = _.debounce((value, field) => {
     const state = { ...this.state };
+    console.log("value, field", value, field);
     if (this.state.isCalculatorType === CALCULATOR_TYPE_LEASE) {
       state.fields[field] = value;
+      this.setState(state, () => {
+        this.calculateLease(this.state.fields);
+      });
     } else {
+      console.log(this.state.finance.fields);
       state.finance.fields[field] = value;
+      this.setState(state, () => {
+        this.calculateFinance(this.state.finance.fields);
+      });
     }
-    this.setState(state, () => {
-      this.calculateLease(this.state.fields);
-    });
   }, RESULTS_CHANGE_DELAY);
 
   handleShareCalculation = () => {
@@ -629,7 +635,7 @@ export default class Calculator extends React.Component {
                           </Col>
                           <Col xs={14} sm={16} className={"text-align-left"}>
                             <InputNumberField
-                              fieldName={"financeMsrp"}
+                              fieldName={"msrp"}
                               value={this.state.finance.fields.msrp}
                               onChange={this.handleChange}
                             />
@@ -643,12 +649,12 @@ export default class Calculator extends React.Component {
                             <Row align="middle">
                               <Col xs={24} sm={10}>
                                 <InputNumberField
-                                  fieldName={"financeSellingPrice"}
+                                  fieldName={"sellingPrice"}
                                   value={this.state.finance.fields.sellingPrice}
                                   onChange={this.handleChange}
                                 />
                               </Col>
-                              {/* <Col
+                              <Col
                                 xs={24}
                                 sm={14}
                                 className={"text-align-left"}
@@ -660,7 +666,7 @@ export default class Calculator extends React.Component {
                                 ) : (
                                   "No dealer discount"
                                 )}
-                              </Col> */}
+                              </Col>
                             </Row>
                           </Col>
                         </Row>
@@ -670,7 +676,7 @@ export default class Calculator extends React.Component {
                           </Col>
                           <Col xs={14} sm={16} className={"text-align-left"}>
                             <InputPercentageField
-                              fieldName={"apr"}
+                              fieldName={"APR"}
                               value={this.state.finance.fields.APR}
                               onChange={this.handleChange}
                             />
@@ -678,13 +684,15 @@ export default class Calculator extends React.Component {
                         </Row>
                         <Row gutter={[8, 8]} align="middle">
                           <Col xs={10} sm={8} className={"text-align-left"}>
-                            {"Finance Term:"}
+                            {"Finance Term (months):"}
                           </Col>
                           <Col xs={14} sm={16} className={"text-align-left"}>
                             <InputNumberField
                               fieldName={"financeTerm"}
                               value={this.state.finance.fields.financeTerm}
+                              formatter={(v) => v}
                               onChange={this.handleChange}
+                              min={10}
                             />
                           </Col>
                         </Row>
