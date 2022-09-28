@@ -10,6 +10,7 @@ import {
   Menu,
   Radio,
   Checkbox,
+  Segmented,
 } from "antd";
 import {
   SHARE_BUTTON_DELAY,
@@ -25,6 +26,9 @@ import {
   TAXATION_METHOD_SALE_PRICE,
   TAXATION_METHOD_TOTAL,
   MAKE,
+  CALCULATOR_TYPE_LEASE,
+  CALCULATOR_TYPE_FINANCE,
+  DUMMY_DEFAULT_FINANCE_DATA,
 } from "./constants";
 import {
   GithubOutlined,
@@ -53,20 +57,41 @@ export default class Calculator extends React.Component {
     incentives: PropTypes.number,
     downPayment: PropTypes.number,
     taxMethod: PropTypes.number,
+    finance: {
+      msrp: PropTypes.number,
+      sellingPrice: PropTypes.number,
+      salesTax: PropTypes.number,
+      term: PropTypes.number,
+      taxableFees: PropTypes.number,
+      untaxableFees: PropTypes.number,
+      apr: PropTypes.number,
+      downPayment: PropTypes.number,
+      tradeIn: PropTypes.number,
+      rebates: PropTypes.number,
+    },
   };
 
   static defaultProps = {
     ...DUMMY_DEFAULT_LEASE_DATA,
+    finance: DUMMY_DEFAULT_FINANCE_DATA,
   };
 
   state = {
     fields: {
       ...this.props,
     },
+    finance: {
+      fields: {
+        ...this.props.finance,
+      },
+      results: {},
+    },
     results: {},
     isLoading: false,
     shareButtonLoading: false,
     shareButtonHelperText: SHARE_BUTTON_HELPER_TEXT,
+    // Whether calculator is set for leasing or financing
+    isCalculatorType: CALCULATOR_TYPE_LEASE,
   };
 
   componentDidMount() {
@@ -94,11 +119,14 @@ export default class Calculator extends React.Component {
     });
     return { make: query.makeId, ...query };
   };
+
   calculateLease = (data) => {
     const leaseCalculator = new LeaseCalculator();
     const { incentives, dealerFees, governmentFees, make, ...rest } = data;
+    let results;
+
     try {
-      leaseCalculator.calculate({
+      results = leaseCalculator.calculate({
         rebates: incentives,
         totalFees: dealerFees + governmentFees,
         // lease-calculator takes a string
@@ -111,27 +139,43 @@ export default class Calculator extends React.Component {
       return;
     }
 
-    const msrpPercentage = leaseCalculator.getMonthlyPaymentToMsrpPercentage();
-    const offMsrp = leaseCalculator.getDiscountOffMsrpPercentage();
-    const driveOffDetails = leaseCalculator.getDriveOffPaymentDetails();
+    const msrpPercentage = results.getMonthlyPaymentToMsrpPercentage();
+    const offMsrp = results.getDiscountOffMsrpPercentage();
+    const driveOffDetails = results.getDriveOffPaymentBreakdown();
     this.setState({
       fields: { ...data },
       results: {
         msrpPercentage,
         offMsrp,
-        RVValue: leaseCalculator.getRVValue(),
-        RVPercent: leaseCalculator.getRVPercentage(),
-        apr: leaseCalculator.getAPR(),
-        totalCost: leaseCalculator.getTotalLeaseCost(),
-        monthlyPaymentPreTax: leaseCalculator.getMonthlyPaymentPreTax(),
-        monthlyPayment: leaseCalculator.getMonthlyPayment(),
+        RVValue: results.getRVValue(),
+        RVPercent: results.getRVPercentage(),
+        apr: results.getAPR(),
+        totalCost: results.getTotalLeaseCost(),
+        monthlyPaymentPreTax: results.getMonthlyPaymentPreTax(),
+        monthlyPayment: results.getMonthlyPayment(),
         isMsrpPercentageThreshold:
           msrpPercentage <= MONTHLY_PAYMENT_TO_MSRP_THRESHOLD,
         isOffMsrpThreshold: offMsrp >= OFF_MSRP_THRESHOLD,
-        driveOff: leaseCalculator.getDriveOffPayment(),
-        acquisitionFee: leaseCalculator.getAcquisitionFee(),
-        dispositionFee: leaseCalculator.getDispositionFee(),
+        driveOff: results.getDriveOffPayment(),
+        acquisitionFee: results.getAcquisitionFee(),
+        dispositionFee: results.getDispositionFee(),
         driveOffDetails: driveOffDetails,
+      },
+    });
+  };
+
+  calculateFinance = (data) => {
+    const leaseCalculator = new LeaseCalculator();
+    const results = leaseCalculator.calculateFinance(data);
+    this.setState({
+      finance: {
+        fields: { ...data },
+        results: {
+          monthlyPayment: results.getFinanceMonthlyPayment(),
+          principal: results.getTotalAmountFinanced(),
+          interest: results.getFinanceTotalInterest(),
+          totalCost: results.getFinanceTotalCost(),
+        },
       },
     });
   };
@@ -155,9 +199,9 @@ export default class Calculator extends React.Component {
     );
   };
 
-  handleChange = (value, field) => {
+  handleChange = (value, field, fieldType) => {
     if (value === 0 || (value && !isNaN(value) && !isNaN(parseFloat(value)))) {
-      this.debounce(value, field);
+      this.debounce(value, field, fieldType);
     }
   };
 
@@ -165,13 +209,19 @@ export default class Calculator extends React.Component {
     const state = { ...this.state };
     state.fields.taxMethod = e.target.value;
     this.setState(state, () => {
-      this.calculateLease(this.state.fields);
+      this.state.isCalculatorType === CALCULATOR_TYPE_LEASE
+        ? this.calculateLease(this.state.fields)
+        : this.calculateFinance(this.state.finance.fields);
     });
   };
 
   debounce = _.debounce((value, field) => {
     const state = { ...this.state };
-    state.fields[field] = value;
+    if (this.state.isCalculatorType === CALCULATOR_TYPE_LEASE) {
+      state.fields[field] = value;
+    } else {
+      state.finance.fields[field] = value;
+    }
     this.setState(state, () => {
       this.calculateLease(this.state.fields);
     });
@@ -224,6 +274,18 @@ export default class Calculator extends React.Component {
     this.debounce(e.target.checked, "isZeroDriveoff");
   };
 
+  handleChangeCalculatorType = (type) => {
+    this.setState(
+      {
+        isCalculatorType:
+          type === "Lease" ? CALCULATOR_TYPE_LEASE : CALCULATOR_TYPE_FINANCE,
+      },
+      () => {
+        this.calculateFinance(this.state.finance.fields);
+      }
+    );
+  };
+
   render() {
     return (
       <div className="pageContainer">
@@ -243,416 +305,714 @@ export default class Calculator extends React.Component {
             <Col xs={24} lg={13}>
               <ToggledSection
                 content={
-                  <>
-                    <Row gutter={[8, 8]} align="middle">
-                      <Col xs={10} sm={8} className={"text-align-left"}>
-                        {"Make:"}
-                      </Col>
-                      <Col xs={14} sm={16} className={"text-align-left"}>
-                        <Dropdown
-                          overlay={
-                            <Menu>
-                              {MAKE.map((make) => (
-                                <Menu.Item key={make.id}>
-                                  <Button
-                                    onClick={() =>
-                                      this.handleDropDownClick(make)
-                                    }
-                                    type="text"
-                                  >
-                                    {make.displayName}
-                                  </Button>
-                                </Menu.Item>
-                              ))}
-                            </Menu>
-                          }
-                        >
-                          <Button
-                            onClick={(e) => e.preventDefault()}
-                            size="large"
-                          >
-                            {this.showSelectedMake()}
-                            <DownOutlined />
-                          </Button>
-                        </Dropdown>
-                      </Col>
-                    </Row>
-                    <Row gutter={[8, 8]} align="middle">
-                      <Col xs={10} sm={8} className={"text-align-left"}>
-                        {"MSRP:"}
-                      </Col>
-                      <Col xs={14} sm={16} className={"text-align-left"}>
-                        <InputNumberField
-                          fieldName={"msrp"}
-                          value={this.state.fields.msrp}
-                          onChange={this.handleChange}
-                        />
-                      </Col>
-                    </Row>
-                    <Row gutter={[8, 0]} align="middle">
-                      <Col xs={10} sm={8} className={"text-align-left"}>
-                        {"Selling Price:"}
-                      </Col>
-                      <Col xs={14} sm={16} className={"text-align-left"}>
-                        <Row align="middle">
-                          <Col xs={24} sm={10}>
+                  <Segmented
+                    block
+                    size="large"
+                    options={["Lease", "Finance"]}
+                    onChange={this.handleChangeCalculatorType}
+                  />
+                }
+              />
+              {this.state.isCalculatorType === CALCULATOR_TYPE_LEASE ? (
+                <>
+                  <ToggledSection
+                    content={
+                      <>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Make:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <Dropdown
+                              overlay={
+                                <Menu>
+                                  {MAKE.map((make) => (
+                                    <Menu.Item key={make.id}>
+                                      <Button
+                                        onClick={() =>
+                                          this.handleDropDownClick(make)
+                                        }
+                                        type="text"
+                                      >
+                                        {make.displayName}
+                                      </Button>
+                                    </Menu.Item>
+                                  ))}
+                                </Menu>
+                              }
+                            >
+                              <Button
+                                onClick={(e) => e.preventDefault()}
+                                size="large"
+                              >
+                                {this.showSelectedMake()}
+                                <DownOutlined />
+                              </Button>
+                            </Dropdown>
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"MSRP:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
                             <InputNumberField
-                              fieldName={"sellingPrice"}
-                              value={this.state.fields.sellingPrice}
+                              fieldName={"msrp"}
+                              value={this.state.fields.msrp}
                               onChange={this.handleChange}
                             />
                           </Col>
-                          <Col xs={24} sm={14} className={"text-align-left"}>
-                            {this.state.results.offMsrp ? (
-                              <Fade show={!this.state.isLoading} fadeInOnly>
-                                {`${this.state.results.offMsrp}% off MSRP`}
-                              </Fade>
-                            ) : (
-                              "No dealer discount"
-                            )}
+                        </Row>
+                        <Row gutter={[8, 0]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Selling Price:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <Row align="middle">
+                              <Col xs={24} sm={10}>
+                                <InputNumberField
+                                  fieldName={"sellingPrice"}
+                                  value={this.state.fields.sellingPrice}
+                                  onChange={this.handleChange}
+                                />
+                              </Col>
+                              <Col
+                                xs={24}
+                                sm={14}
+                                className={"text-align-left"}
+                              >
+                                {this.state.results.offMsrp ? (
+                                  <Fade show={!this.state.isLoading} fadeInOnly>
+                                    {`${this.state.results.offMsrp}% off MSRP`}
+                                  </Fade>
+                                ) : (
+                                  "No dealer discount"
+                                )}
+                              </Col>
+                            </Row>
                           </Col>
                         </Row>
-                      </Col>
-                    </Row>
-                  </>
-                }
-              />
-              <ToggledSection
-                title={"Lease Numbers"}
-                content={
-                  <>
-                    <Row gutter={[8, 8]} align="middle">
-                      <Col xs={10} sm={8} className={"text-align-left"}>
-                        {"Months:"}
-                      </Col>
-                      <Col xs={14} sm={16} className={"text-align-left"}>
-                        <InputNumberField
-                          fieldName={"leaseTerm"}
-                          value={this.state.fields.leaseTerm}
-                          formatter={(v) => v}
-                          onChange={this.handleChange}
-                          min={10}
-                        />
-                      </Col>
-                    </Row>
-                    <Row gutter={[8, 8]} align="middle">
-                      <Col xs={10} sm={8} className={"text-align-left"}>
-                        {"Money Factor:"}
-                      </Col>
-                      <Col xs={14} sm={16} className={"text-align-left"}>
-                        <Row align="middle">
-                          <Col xs={24} sm={10}>
+                      </>
+                    }
+                  />
+                  <ToggledSection
+                    title={"Lease Numbers"}
+                    content={
+                      <>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Months:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
                             <InputNumberField
-                              fieldName={"mf"}
-                              value={this.state.fields.mf}
+                              fieldName={"leaseTerm"}
+                              value={this.state.fields.leaseTerm}
                               formatter={(v) => v}
                               onChange={this.handleChange}
-                              onPressEnter={this.handleClick}
-                              min={0.0000001}
-                              step={0.0001}
-                              max={0.02}
+                              min={10}
                             />
                           </Col>
-                          <Col xs={24} sm={10} className={"text-align-left"}>
-                            <Fade show={!this.state.isLoading} fadeInOnly>
-                              {`${this.state.results.apr}% APR`}
-                            </Fade>
+                        </Row>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Money Factor:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <Row align="middle">
+                              <Col xs={24} sm={10}>
+                                <InputNumberField
+                                  fieldName={"mf"}
+                                  value={this.state.fields.mf}
+                                  formatter={(v) => v}
+                                  onChange={this.handleChange}
+                                  onPressEnter={this.handleClick}
+                                  min={0.0000001}
+                                  step={0.0001}
+                                  max={0.02}
+                                />
+                              </Col>
+                              <Col
+                                xs={24}
+                                sm={10}
+                                className={"text-align-left"}
+                              >
+                                <Fade show={!this.state.isLoading} fadeInOnly>
+                                  {`${this.state.results.apr}% APR`}
+                                </Fade>
+                              </Col>
+                            </Row>
                           </Col>
                         </Row>
-                      </Col>
-                    </Row>
-                    <Row gutter={[8, 0]} align="middle">
-                      <Col xs={10} sm={8} className={"text-align-left"}>
-                        {"Residual:"}
-                      </Col>
-                      <Col xs={14} sm={16} className={"text-align-left"}>
-                        <Row align="middle">
-                          <Col xs={24} sm={10}>
-                            <InputPercentageField
-                              fieldName={"rv"}
-                              value={this.state.results.RVPercent}
+                        <Row gutter={[8, 0]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Residual:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <Row align="middle">
+                              <Col xs={24} sm={10}>
+                                <InputPercentageField
+                                  fieldName={"rv"}
+                                  value={this.state.results.RVPercent}
+                                  onChange={this.handleChange}
+                                  onPressEnter={this.handleClick}
+                                />
+                              </Col>
+                              <Col
+                                xs={24}
+                                sm={10}
+                                className={"text-align-left"}
+                              >
+                                <Fade show={!this.state.isLoading} fadeInOnly>
+                                  {`$${this.state.results.RVValue}`}
+                                </Fade>
+                              </Col>
+                            </Row>
+                          </Col>
+                        </Row>
+                      </>
+                    }
+                  />
+                  <ToggledSection
+                    title={"Cap Cost Adjustments"}
+                    content={
+                      <>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Down Payment:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputNumberField
+                              fieldName={"downPayment"}
+                              value={this.state.fields.downPayment}
                               onChange={this.handleChange}
-                              onPressEnter={this.handleClick}
                             />
                           </Col>
-                          <Col xs={24} sm={10} className={"text-align-left"}>
-                            <Fade show={!this.state.isLoading} fadeInOnly>
-                              {`$${this.state.results.RVValue}`}
-                            </Fade>
+                        </Row>
+                        <Row gutter={[8, 0]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Incentives:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputNumberField
+                              fieldName={"incentives"}
+                              value={this.state.fields.incentives}
+                              onChange={this.handleChange}
+                            />
                           </Col>
                         </Row>
-                      </Col>
-                    </Row>
-                  </>
-                }
-              />
-              <ToggledSection
-                title={"Cap Cost Adjustments"}
-                content={
-                  <>
-                    <Row gutter={[8, 8]} align="middle">
-                      <Col xs={10} sm={8} className={"text-align-left"}>
-                        {"Down Payment:"}
-                      </Col>
-                      <Col xs={14} sm={16} className={"text-align-left"}>
-                        <InputNumberField
-                          fieldName={"downPayment"}
-                          value={this.state.fields.downPayment}
-                          onChange={this.handleChange}
-                        />
-                      </Col>
-                    </Row>
-                    <Row gutter={[8, 0]} align="middle">
-                      <Col xs={10} sm={8} className={"text-align-left"}>
-                        {"Incentives:"}
-                      </Col>
-                      <Col xs={14} sm={16} className={"text-align-left"}>
-                        <InputNumberField
-                          fieldName={"incentives"}
-                          value={this.state.fields.incentives}
-                          onChange={this.handleChange}
-                        />
-                      </Col>
-                    </Row>
-                    <Row gutter={[8, 0]} align="middle">
-                      <Col className={"text-align-left"}>
-                        {
-                          "Not sure which incentives you're eligible for? Find out using our "
-                        }
-                        <a
-                          href="http://bit.ly/IncentiveLookup"
-                          title="Incentives Lookup tool"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Incentives Lookup tool
-                        </a>
-                      </Col>
-                    </Row>
-                  </>
-                }
-              />
-              <ToggledSection
-                title={"Fees & Taxes"}
-                content={
-                  <>
-                    <Row gutter={[8, 8]} align="middle">
-                      <Col xs={10} sm={8} className={"text-align-left"}>
-                        {"Acquisition Fee:"}
-                      </Col>
-                      <Col xs={14} sm={16} className={"text-align-left"}>
-                        <InputNumberField
-                          fieldName={"acquisitionFee"}
-                          value={this.state.results.acquisitionFee}
-                          disabled
-                        />
-                      </Col>
-                      {!MAKE.find((m) => m.id === this.state.fields.make) && (
-                        <Col xs={10} sm={8} className={"text-align-left"}>
-                          {"Select a make"}
-                        </Col>
-                      )}
-                    </Row>
-                    <Row gutter={[8, 8]} align="middle">
-                      <Col xs={10} sm={8} className={"text-align-left"}>
-                        {"Dealer Fees:"}
-                      </Col>
-                      <Col xs={14} sm={16} className={"text-align-left"}>
-                        <InputNumberField
-                          fieldName={"dealerFees"}
-                          value={this.state.fields.dealerFees}
-                          onChange={this.handleChange}
-                        />
-                      </Col>
-                    </Row>
-                    <Row gutter={[8, 8]} align="middle">
-                      <Col xs={10} sm={8} className={"text-align-left"}>
-                        {"Government Fees:"}
-                      </Col>
-                      <Col xs={14} sm={16} className={"text-align-left"}>
-                        <InputNumberField
-                          fieldName={"governmentFees"}
-                          value={this.state.fields.governmentFees}
-                          onChange={this.handleChange}
-                        />
-                      </Col>
-                    </Row>
-                    <Row gutter={[8, 8]} align="middle">
-                      <Col xs={10} sm={8} className={"text-align-left"}>
-                        {"Zero Drive-Off"}
-                      </Col>
-                      <Col xs={14} sm={16} className={"text-align-left"}>
-                        <Checkbox
-                          checked={this.state.fields.isZeroDriveoff}
-                          onChange={this.handleChangeZeroDriveOff}
-                        >
-                          Capitalize fees and taxes
-                        </Checkbox>
-                      </Col>
-                    </Row>
-                    <Row gutter={[8, 8]} align="middle">
-                      <Col xs={10} sm={8} className={"text-align-left"}>
-                        {"Sales Tax:"}
-                      </Col>
-                      <Col xs={14} sm={16} className={"text-align-left"}>
-                        <InputPercentageField
-                          fieldName={"salesTax"}
-                          value={this.state.fields.salesTax}
-                          onChange={this.handleChange}
-                        />
-                      </Col>
-                    </Row>
-                    <Row gutter={[8, 0]} align="middle">
-                      <Col span={24} className={"text-align-left"}>
-                        <Radio.Group
-                          options={[
+                        <Row gutter={[8, 0]} align="middle">
+                          <Col className={"text-align-left"}>
                             {
-                              label:
-                                "Tax applied on monthly payment (most states)",
-                              value: TAXATION_METHOD_MONTHLY,
-                            },
-                            {
-                              label: "Tax applied on sales price (VA only)",
-                              value: TAXATION_METHOD_SALE_PRICE,
-                            },
-                            {
-                              label:
-                                "Tax applied on total lease payments (e.g. NY, NJ, MN, OH, GA)",
-                              value: TAXATION_METHOD_TOTAL,
-                            },
-                          ]}
-                          value={this.state.fields.taxMethod}
-                          onChange={this.handleTaxChange}
-                        />
-                      </Col>
-                    </Row>
-                  </>
-                }
-              />
+                              "Not sure which incentives you're eligible for? Find out using our "
+                            }
+                            <a
+                              href="http://bit.ly/IncentiveLookup"
+                              title="Incentives Lookup tool"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Incentives Lookup tool
+                            </a>
+                          </Col>
+                        </Row>
+                      </>
+                    }
+                  />
+                  <ToggledSection
+                    title={"Fees & Taxes"}
+                    content={
+                      <>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Acquisition Fee:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputNumberField
+                              fieldName={"acquisitionFee"}
+                              value={this.state.results.acquisitionFee}
+                              disabled
+                            />
+                          </Col>
+                          {!MAKE.find(
+                            (m) => m.id === this.state.fields.make
+                          ) && (
+                            <Col xs={10} sm={8} className={"text-align-left"}>
+                              {"Select a make"}
+                            </Col>
+                          )}
+                        </Row>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Dealer Fees:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputNumberField
+                              fieldName={"dealerFees"}
+                              value={this.state.fields.dealerFees}
+                              onChange={this.handleChange}
+                            />
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Government Fees:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputNumberField
+                              fieldName={"governmentFees"}
+                              value={this.state.fields.governmentFees}
+                              onChange={this.handleChange}
+                            />
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Zero Drive-Off"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <Checkbox
+                              checked={this.state.fields.isZeroDriveoff}
+                              onChange={this.handleChangeZeroDriveOff}
+                            >
+                              Capitalize fees and taxes
+                            </Checkbox>
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Sales Tax:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputPercentageField
+                              fieldName={"salesTax"}
+                              value={this.state.fields.salesTax}
+                              onChange={this.handleChange}
+                            />
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 0]} align="middle">
+                          <Col span={24} className={"text-align-left"}>
+                            <Radio.Group
+                              options={[
+                                {
+                                  label:
+                                    "Tax applied on monthly payment (most states)",
+                                  value: TAXATION_METHOD_MONTHLY,
+                                },
+                                {
+                                  label: "Tax applied on sales price (VA only)",
+                                  value: TAXATION_METHOD_SALE_PRICE,
+                                },
+                                {
+                                  label:
+                                    "Tax applied on total lease payments (e.g. NY, NJ, MN, OH, GA)",
+                                  value: TAXATION_METHOD_TOTAL,
+                                },
+                              ]}
+                              value={this.state.fields.taxMethod}
+                              onChange={this.handleTaxChange}
+                            />
+                          </Col>
+                        </Row>
+                      </>
+                    }
+                  />
+                </>
+              ) : (
+                <>
+                  <ToggledSection
+                    content={
+                      <>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"MSRP:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputNumberField
+                              fieldName={"financeMsrp"}
+                              value={this.state.finance.fields.msrp}
+                              onChange={this.handleChange}
+                            />
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 0]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Selling Price:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <Row align="middle">
+                              <Col xs={24} sm={10}>
+                                <InputNumberField
+                                  fieldName={"financeSellingPrice"}
+                                  value={this.state.finance.fields.sellingPrice}
+                                  onChange={this.handleChange}
+                                />
+                              </Col>
+                              {/* <Col
+                                xs={24}
+                                sm={14}
+                                className={"text-align-left"}
+                              >
+                                {this.state.finance.results.offMsrp ? (
+                                  <Fade show={!this.state.isLoading} fadeInOnly>
+                                    {`${this.state.finance.results.offMsrp}% off MSRP`}
+                                  </Fade>
+                                ) : (
+                                  "No dealer discount"
+                                )}
+                              </Col> */}
+                            </Row>
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"APR:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputPercentageField
+                              fieldName={"apr"}
+                              value={this.state.finance.fields.APR}
+                              onChange={this.handleChange}
+                            />
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Finance Term:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputNumberField
+                              fieldName={"financeTerm"}
+                              value={this.state.finance.fields.financeTerm}
+                              onChange={this.handleChange}
+                            />
+                          </Col>
+                        </Row>
+                      </>
+                    }
+                  />
+                  <ToggledSection
+                    title={"Taxes & Fees"}
+                    content={
+                      <>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Sales Tax:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputPercentageField
+                              fieldName={"financeSalesTax"}
+                              value={this.state.finance.fields.salesTax}
+                              onChange={this.handleChange}
+                            />
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 0]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Rebates:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputNumberField
+                              fieldName={"financeRebates"}
+                              value={this.state.finance.fields.rebates}
+                              onChange={this.handleChange}
+                            />
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Taxable Fees:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputNumberField
+                              fieldName={"taxableFees"}
+                              value={this.state.finance.fields.taxableFees}
+                              onChange={this.handleChange}
+                            />
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Untaxable Fees:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputNumberField
+                              fieldName={"untaxableFees"}
+                              value={this.state.finance.fields.untaxableFees}
+                              onChange={this.handleChange}
+                            />
+                          </Col>
+                        </Row>
+                      </>
+                    }
+                  />
+                  <ToggledSection
+                    title={"Down Payment"}
+                    content={
+                      <>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Down Payment:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputNumberField
+                              fieldName={"downPayment"}
+                              value={this.state.finance.fields.downPayment}
+                              onChange={this.handleChange}
+                            />
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={10} sm={8} className={"text-align-left"}>
+                            {"Trade In:"}
+                          </Col>
+                          <Col xs={14} sm={16} className={"text-align-left"}>
+                            <InputNumberField
+                              fieldName={"tradeIn"}
+                              value={this.state.finance.fields.tradeIn}
+                              onChange={this.handleChange}
+                            />
+                          </Col>
+                        </Row>
+                      </>
+                    }
+                  />
+                </>
+              )}
             </Col>
 
             <Col xs={24} lg={11}>
               <div className={"sticky"}>
-                <ToggledSection
-                  class={"results"}
-                  content={
-                    <>
-                      <Row gutter={[8, 8]} align="middle">
-                        <Col xs={13} sm={10} className={"text-align-left"}>
-                          {"Monthly Pre-Tax:"}
-                        </Col>
-                        <Col xs={11} sm={14}>
-                          <Fade show={!this.state.isLoading} fadeInOnly>
-                            <Statistic
-                              value={this.state.results.monthlyPaymentPreTax}
-                              precision={2}
-                              prefix="$"
-                            />
-                          </Fade>
-                        </Col>
-                      </Row>
-                      <div className="monthly-payment">
+                {this.state.isCalculatorType === CALCULATOR_TYPE_LEASE ? (
+                  <ToggledSection
+                    class={"results"}
+                    content={
+                      <>
                         <Row gutter={[8, 8]} align="middle">
-                          <Col xs={14} sm={10} className={"text-align-left"}>
-                            {"Monthly Payment:"}
+                          <Col xs={13} sm={10} className={"text-align-left"}>
+                            {"Monthly Pre-Tax:"}
                           </Col>
-                          <Col xs={10} sm={14}>
+                          <Col xs={11} sm={14}>
                             <Fade show={!this.state.isLoading} fadeInOnly>
                               <Statistic
-                                value={this.state.results.monthlyPayment}
+                                value={this.state.results.monthlyPaymentPreTax}
                                 precision={2}
                                 prefix="$"
                               />
                             </Fade>
                           </Col>
                         </Row>
-                      </div>
-                      <Row gutter={[8, 8]} align="middle">
-                        <Col xs={13} sm={10} className={"text-align-left"}>
-                          {"% of MSRP:"}
-                        </Col>
-                        <Col xs={11} sm={14}>
-                          <Fade show={!this.state.isLoading} fadeInOnly>
-                            {`${this.state.results.msrpPercentage}%`}
-                          </Fade>
-                        </Col>
-                      </Row>
-                      <Row
-                        gutter={
-                          this.state.results.driveOffDetails ? [8, 0] : [8, 8]
-                        }
-                        align="middle"
-                      >
-                        <Col xs={13} sm={10} className={"text-align-left"}>
-                          {"Drive off:"}
-                        </Col>
-                        <Col xs={11} sm={14}>
-                          <Fade show={!this.state.isLoading} fadeInOnly>
-                            <Statistic
-                              value={this.state.results.driveOff}
-                              precision={2}
-                              prefix="$"
-                            />
-                          </Fade>
-                        </Col>
-                      </Row>
-                      {this.state.results.driveOffDetails &&
-                        this.state.results.driveOffDetails.map((item) => {
-                          return (
-                            <div className="driveoff-details" key={item.type}>
-                              <Row gutter={[0, 0]} align="middle">
-                                <Col
-                                  xs={13}
-                                  sm={10}
-                                  className={"text-align-left"}
-                                >
-                                  {`${item.label}:`}
-                                </Col>
-                                <Col xs={11} sm={14}>
-                                  <Fade show={!this.state.isLoading} fadeInOnly>
-                                    <Statistic
-                                      value={`${item.amount}`}
-                                      precision={2}
-                                      prefix="$"
-                                    />
-                                  </Fade>
-                                </Col>
-                              </Row>
-                            </div>
-                          );
-                        })}
-                      <Row gutter={[8, 8]} align="middle">
-                        <Col xs={13} sm={10} className={"text-align-left"}>
-                          {"Disposition Fee:"}
-                        </Col>
-                        <Col xs={11} sm={14}>
-                          <Fade show={!this.state.isLoading} fadeInOnly>
-                            <Statistic
-                              value={this.state.results.dispositionFee}
-                              precision={2}
-                              prefix="$"
-                            />
-                          </Fade>
-                        </Col>
-                      </Row>
+                        <div className="monthly-payment">
+                          <Row gutter={[8, 8]} align="middle">
+                            <Col xs={14} sm={10} className={"text-align-left"}>
+                              {"Monthly Payment:"}
+                            </Col>
+                            <Col xs={10} sm={14}>
+                              <Fade show={!this.state.isLoading} fadeInOnly>
+                                <Statistic
+                                  value={this.state.results.monthlyPayment}
+                                  precision={2}
+                                  prefix="$"
+                                />
+                              </Fade>
+                            </Col>
+                          </Row>
+                        </div>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={13} sm={10} className={"text-align-left"}>
+                            {"% of MSRP:"}
+                          </Col>
+                          <Col xs={11} sm={14}>
+                            <Fade show={!this.state.isLoading} fadeInOnly>
+                              {`${this.state.results.msrpPercentage}%`}
+                            </Fade>
+                          </Col>
+                        </Row>
+                        <Row
+                          gutter={
+                            this.state.results.driveOffDetails ? [8, 0] : [8, 8]
+                          }
+                          align="middle"
+                        >
+                          <Col xs={13} sm={10} className={"text-align-left"}>
+                            {"Drive off:"}
+                          </Col>
+                          <Col xs={11} sm={14}>
+                            <Fade show={!this.state.isLoading} fadeInOnly>
+                              <Statistic
+                                value={this.state.results.driveOff}
+                                precision={2}
+                                prefix="$"
+                              />
+                            </Fade>
+                          </Col>
+                        </Row>
+                        {this.state.results.driveOffDetails &&
+                          this.state.results.driveOffDetails.map((item) => {
+                            return (
+                              <div className="driveoff-details" key={item.type}>
+                                <Row gutter={[0, 0]} align="middle">
+                                  <Col
+                                    xs={13}
+                                    sm={10}
+                                    className={"text-align-left"}
+                                  >
+                                    {`${item.label}:`}
+                                  </Col>
+                                  <Col xs={11} sm={14}>
+                                    <Fade
+                                      show={!this.state.isLoading}
+                                      fadeInOnly
+                                    >
+                                      <Statistic
+                                        value={`${item.amount}`}
+                                        precision={2}
+                                        prefix="$"
+                                      />
+                                    </Fade>
+                                  </Col>
+                                </Row>
+                              </div>
+                            );
+                          })}
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={13} sm={10} className={"text-align-left"}>
+                            {"Disposition Fee:"}
+                          </Col>
+                          <Col xs={11} sm={14}>
+                            <Fade show={!this.state.isLoading} fadeInOnly>
+                              <Statistic
+                                value={this.state.results.dispositionFee}
+                                precision={2}
+                                prefix="$"
+                              />
+                            </Fade>
+                          </Col>
+                        </Row>
 
-                      <Row gutter={[8, 8]} align="middle">
-                        <Col xs={12} sm={10} className={"text-align-left"}>
-                          {"Total Cost:"}
-                        </Col>
-                        <Col xs={12} sm={14}>
-                          <Fade show={!this.state.isLoading} fadeInOnly>
-                            <Statistic
-                              value={this.state.results.totalCost}
-                              precision={2}
-                              prefix="$"
-                            />
-                          </Fade>
-                        </Col>
-                      </Row>
-                    </>
-                  }
-                />
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={12} sm={10} className={"text-align-left"}>
+                            {"Total Cost:"}
+                          </Col>
+                          <Col xs={12} sm={14}>
+                            <Fade show={!this.state.isLoading} fadeInOnly>
+                              <Statistic
+                                value={this.state.results.totalCost}
+                                precision={2}
+                                prefix="$"
+                              />
+                            </Fade>
+                          </Col>
+                        </Row>
+                      </>
+                    }
+                  />
+                ) : (
+                  <ToggledSection
+                    class={"results"}
+                    content={
+                      <>
+                        <div className="monthly-payment">
+                          <Row gutter={[8, 8]} align="middle">
+                            <Col xs={14} sm={10} className={"text-align-left"}>
+                              {"Monthly Payment:"}
+                            </Col>
+                            <Col xs={10} sm={14}>
+                              <Fade show={!this.state.isLoading} fadeInOnly>
+                                <Statistic
+                                  value={
+                                    this.state.finance.results.monthlyPayment
+                                  }
+                                  precision={2}
+                                  prefix="$"
+                                />
+                              </Fade>
+                            </Col>
+                          </Row>
+                        </div>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={13} sm={10} className={"text-align-left"}>
+                            {"Principal:"}
+                          </Col>
+                          <Col xs={11} sm={14}>
+                            <Fade show={!this.state.isLoading} fadeInOnly>
+                              <Statistic
+                                value={this.state.finance.results.principal}
+                                precision={2}
+                                prefix="$"
+                              />
+                            </Fade>
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 8]} align="middle">
+                          <Col xs={13} sm={10} className={"text-align-left"}>
+                            {"Interest:"}
+                          </Col>
+                          <Col xs={11} sm={14}>
+                            <Fade show={!this.state.isLoading} fadeInOnly>
+                              <Statistic
+                                value={this.state.finance.results.interest}
+                                precision={2}
+                                prefix="$"
+                              />
+                            </Fade>
+                          </Col>
+                        </Row>
+                        {this.state.finance.fields.downPayment > 0 && (
+                          <Row gutter={[8, 8]} align="middle">
+                            <Col xs={13} sm={10} className={"text-align-left"}>
+                              {"Due At Signing:"}
+                            </Col>
+                            <Col xs={11} sm={14}>
+                              <Fade show={!this.state.isLoading} fadeInOnly>
+                                <Statistic
+                                  value={this.state.finance.fields.downPayment}
+                                  precision={2}
+                                  prefix="$"
+                                />
+                              </Fade>
+                            </Col>
+                          </Row>
+                        )}
+                        {this.state.finance.fields.downPayment > 0 && (
+                          <Row gutter={[8, 8]} align="middle">
+                            <Col xs={13} sm={10} className={"text-align-left"}>
+                              {"Trade In:"}
+                            </Col>
+                            <Col xs={11} sm={14}>
+                              <Fade show={!this.state.isLoading} fadeInOnly>
+                                <Statistic
+                                  value={this.state.finance.fields.tradeIn}
+                                  precision={2}
+                                  prefix="$"
+                                />
+                              </Fade>
+                            </Col>
+                          </Row>
+                        )}
+                        <Row
+                          gutter={
+                            this.state.results.driveOffDetails ? [8, 0] : [8, 8]
+                          }
+                          align="middle"
+                        >
+                          <Col xs={13} sm={10} className={"text-align-left"}>
+                            {"Total Cost:"}
+                          </Col>
+                          <Col xs={11} sm={14}>
+                            <Fade show={!this.state.isLoading} fadeInOnly>
+                              <Statistic
+                                value={this.state.finance.results.totalCost}
+                                precision={2}
+                                prefix="$"
+                              />
+                            </Fade>
+                          </Col>
+                        </Row>
+                      </>
+                    }
+                  />
+                )}
                 <Row gutter={[0, 8]} align="middle" justify="center">
                   <Col>
                     <Button

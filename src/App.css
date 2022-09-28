@@ -140,6 +140,15 @@ footer a {
 .ant-radio-wrapper {
   white-space: pre-wrap;
 }
+
+.ant-segmented {
+  margin: 0 1em;
+}
+.ant-segmented-item {
+  width: 100%;
+  border-radius: 5px;
+}
+
 @media only screen and (max-device-width: 768px) {
   .pageBody {
     margin: 0 1%;

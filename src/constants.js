@@ -5,6 +5,10 @@ export const OFF_MSRP_THRESHOLD = 10;
 // Results onChange loading delay
 export const RESULTS_CHANGE_DELAY = 10;
 
+// Calculator type
+export const CALCULATOR_TYPE_LEASE = "lease";
+export const CALCULATOR_TYPE_FINANCE = "finance";
+
 export const ESC_KEY = 27;
 export const RIGHT_KEY = 39;
 
@@ -137,4 +141,17 @@ export const DUMMY_DEFAULT_LEASE_DATA = {
   // rebates: 500,
   isZeroDriveoff: false,
   taxMethod: TAXATION_METHOD_MONTHLY,
+};
+
+export const DUMMY_DEFAULT_FINANCE_DATA = {
+  msrp: 50000,
+  sellingPrice: 49000,
+  salesTax: 6.25,
+  financeTerm: 60,
+  taxableFees: 1000,
+  untaxableFees: 500,
+  APR: 4.5,
+  downPayment: 3000,
+  tradeIn: 5000,
+  rebates: 0,
 };
