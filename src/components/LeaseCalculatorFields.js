@@ -312,16 +312,26 @@ const LeaseCalculatorFields = ({
   );
 };
 
-// LeaseCalculatorFields.propTypes = {
-//   show: PropTypes.bool.isRequired,
-//   fadeInOnly: PropTypes.bool,
-//   isInline: PropTypes.bool,
-//   children: PropTypes.node.isRequired,
-// };
+LeaseCalculatorFields.propTypes = {
+  fields: PropTypes.object.isRequired,
+  results: PropTypes.object.isRequired,
+  isLoading: PropTypes.bool,
+  handleChange: PropTypes.func,
+  handleDropDownClick: PropTypes.func,
+  handleClick: PropTypes.func,
+  handleTaxChange: PropTypes.func,
+  handleChangeZeroDriveOff: PropTypes.func,
+  showSelectedMake: PropTypes.func,
+};
 
-// LeaseCalculatorFields.defaultProps = {
-//   fadeInOnly: false,
-//   isInline: false,
-// };
+LeaseCalculatorFields.defaultProps = {
+  isLoading: false,
+  handleChange() {},
+  handleDropDownClick() {},
+  handleClick() {},
+  handleTaxChange() {},
+  handleChangeZeroDriveOff() {},
+  showSelectedMake() {},
+};
 
 export default LeaseCalculatorFields;

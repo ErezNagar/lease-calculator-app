@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import LeaseCalculator from "lease-calculator";
-import { Statistic, Row, Col, Button, Segmented } from "antd";
+import { Row, Col, Button, Segmented } from "antd";
 import {
   SHARE_BUTTON_DELAY,
   SHARE_BUTTON_TEXT,
@@ -23,10 +23,12 @@ import {
   MailOutlined,
 } from "@ant-design/icons";
 import _ from "underscore";
-import Fade from "./components/Fade";
 import ToggledSection from "./components/ToggledSection";
 import LeaseCalculatorFields from "./components/LeaseCalculatorFields";
+import LeaseCalculatorResults from "./components/LeaseCalculatorResults";
 import FinanceCalculatorFields from "./components/FinanceCalculatorFields";
+import FinanceCalculatorResults from "./components/FinanceCalculatorResults";
+
 import queryString from "query-string";
 
 export default class Calculator extends React.Component {
@@ -334,233 +336,15 @@ export default class Calculator extends React.Component {
             <Col xs={24} lg={11}>
               <div className={"sticky"}>
                 {this.state.isCalculatorType === CALCULATOR_TYPE_LEASE ? (
-                  <ToggledSection
-                    class={"results"}
-                    content={
-                      <>
-                        <Row gutter={[8, 8]} align="middle">
-                          <Col xs={13} sm={10} className={"text-align-left"}>
-                            {"Monthly Pre-Tax:"}
-                          </Col>
-                          <Col xs={11} sm={14}>
-                            <Fade show={!this.state.isLoading} fadeInOnly>
-                              <Statistic
-                                value={this.state.results.monthlyPaymentPreTax}
-                                precision={2}
-                                prefix="$"
-                              />
-                            </Fade>
-                          </Col>
-                        </Row>
-                        <div className="monthly-payment">
-                          <Row gutter={[8, 8]} align="middle">
-                            <Col xs={14} sm={10} className={"text-align-left"}>
-                              {"Monthly Payment:"}
-                            </Col>
-                            <Col xs={10} sm={14}>
-                              <Fade show={!this.state.isLoading} fadeInOnly>
-                                <Statistic
-                                  value={this.state.results.monthlyPayment}
-                                  precision={2}
-                                  prefix="$"
-                                />
-                              </Fade>
-                            </Col>
-                          </Row>
-                        </div>
-                        <Row gutter={[8, 8]} align="middle">
-                          <Col xs={13} sm={10} className={"text-align-left"}>
-                            {"% of MSRP:"}
-                          </Col>
-                          <Col xs={11} sm={14}>
-                            <Fade show={!this.state.isLoading} fadeInOnly>
-                              {`${this.state.results.msrpPercentage}%`}
-                            </Fade>
-                          </Col>
-                        </Row>
-                        <Row
-                          gutter={
-                            this.state.results.driveOffDetails ? [8, 0] : [8, 8]
-                          }
-                          align="middle"
-                        >
-                          <Col xs={13} sm={10} className={"text-align-left"}>
-                            {"Drive off:"}
-                          </Col>
-                          <Col xs={11} sm={14}>
-                            <Fade show={!this.state.isLoading} fadeInOnly>
-                              <Statistic
-                                value={this.state.results.driveOff}
-                                precision={2}
-                                prefix="$"
-                              />
-                            </Fade>
-                          </Col>
-                        </Row>
-                        {this.state.results.driveOffDetails &&
-                          this.state.results.driveOffDetails.map((item) => {
-                            return (
-                              <div className="driveoff-details" key={item.type}>
-                                <Row gutter={[0, 0]} align="middle">
-                                  <Col
-                                    xs={13}
-                                    sm={10}
-                                    className={"text-align-left"}
-                                  >
-                                    {`${item.label}:`}
-                                  </Col>
-                                  <Col xs={11} sm={14}>
-                                    <Fade
-                                      show={!this.state.isLoading}
-                                      fadeInOnly
-                                    >
-                                      <Statistic
-                                        value={`${item.amount}`}
-                                        precision={2}
-                                        prefix="$"
-                                      />
-                                    </Fade>
-                                  </Col>
-                                </Row>
-                              </div>
-                            );
-                          })}
-                        <Row gutter={[8, 8]} align="middle">
-                          <Col xs={13} sm={10} className={"text-align-left"}>
-                            {"Disposition Fee:"}
-                          </Col>
-                          <Col xs={11} sm={14}>
-                            <Fade show={!this.state.isLoading} fadeInOnly>
-                              <Statistic
-                                value={this.state.results.dispositionFee}
-                                precision={2}
-                                prefix="$"
-                              />
-                            </Fade>
-                          </Col>
-                        </Row>
-
-                        <Row gutter={[8, 8]} align="middle">
-                          <Col xs={12} sm={10} className={"text-align-left"}>
-                            {"Total Cost:"}
-                          </Col>
-                          <Col xs={12} sm={14}>
-                            <Fade show={!this.state.isLoading} fadeInOnly>
-                              <Statistic
-                                value={this.state.results.totalCost}
-                                precision={2}
-                                prefix="$"
-                              />
-                            </Fade>
-                          </Col>
-                        </Row>
-                      </>
-                    }
+                  <LeaseCalculatorResults
+                    results={this.state.results}
+                    isLoading={this.state.isLoading}
                   />
                 ) : (
-                  <ToggledSection
-                    class={"results"}
-                    content={
-                      <>
-                        <div className="monthly-payment">
-                          <Row gutter={[8, 8]} align="middle">
-                            <Col xs={14} sm={10} className={"text-align-left"}>
-                              {"Monthly Payment:"}
-                            </Col>
-                            <Col xs={10} sm={14}>
-                              <Fade show={!this.state.isLoading} fadeInOnly>
-                                <Statistic
-                                  value={
-                                    this.state.finance.results.monthlyPayment
-                                  }
-                                  precision={2}
-                                  prefix="$"
-                                />
-                              </Fade>
-                            </Col>
-                          </Row>
-                        </div>
-                        <Row gutter={[8, 8]} align="middle">
-                          <Col xs={13} sm={10} className={"text-align-left"}>
-                            {"Principal:"}
-                          </Col>
-                          <Col xs={11} sm={14}>
-                            <Fade show={!this.state.isLoading} fadeInOnly>
-                              <Statistic
-                                value={this.state.finance.results.principal}
-                                precision={2}
-                                prefix="$"
-                              />
-                            </Fade>
-                          </Col>
-                        </Row>
-                        <Row gutter={[8, 8]} align="middle">
-                          <Col xs={13} sm={10} className={"text-align-left"}>
-                            {"Interest:"}
-                          </Col>
-                          <Col xs={11} sm={14}>
-                            <Fade show={!this.state.isLoading} fadeInOnly>
-                              <Statistic
-                                value={this.state.finance.results.interest}
-                                precision={2}
-                                prefix="$"
-                              />
-                            </Fade>
-                          </Col>
-                        </Row>
-                        {this.state.finance.fields.downPayment > 0 && (
-                          <Row gutter={[8, 8]} align="middle">
-                            <Col xs={13} sm={10} className={"text-align-left"}>
-                              {"Due At Signing:"}
-                            </Col>
-                            <Col xs={11} sm={14}>
-                              <Fade show={!this.state.isLoading} fadeInOnly>
-                                <Statistic
-                                  value={this.state.finance.fields.downPayment}
-                                  precision={2}
-                                  prefix="$"
-                                />
-                              </Fade>
-                            </Col>
-                          </Row>
-                        )}
-                        {this.state.finance.fields.downPayment > 0 && (
-                          <Row gutter={[8, 8]} align="middle">
-                            <Col xs={13} sm={10} className={"text-align-left"}>
-                              {"Trade In:"}
-                            </Col>
-                            <Col xs={11} sm={14}>
-                              <Fade show={!this.state.isLoading} fadeInOnly>
-                                <Statistic
-                                  value={this.state.finance.fields.tradeIn}
-                                  precision={2}
-                                  prefix="$"
-                                />
-                              </Fade>
-                            </Col>
-                          </Row>
-                        )}
-                        <Row
-                          gutter={
-                            this.state.results.driveOffDetails ? [8, 0] : [8, 8]
-                          }
-                          align="middle"
-                        >
-                          <Col xs={13} sm={10} className={"text-align-left"}>
-                            {"Total Cost:"}
-                          </Col>
-                          <Col xs={11} sm={14}>
-                            <Fade show={!this.state.isLoading} fadeInOnly>
-                              <Statistic
-                                value={this.state.finance.results.totalCost}
-                                precision={2}
-                                prefix="$"
-                              />
-                            </Fade>
-                          </Col>
-                        </Row>
-                      </>
-                    }
+                  <FinanceCalculatorResults
+                    fields={this.state.finance.fields}
+                    results={this.state.finance.results}
+                    isLoading={this.state.isLoading}
                   />
                 )}
                 <Row gutter={[0, 8]} align="middle" justify="center">
