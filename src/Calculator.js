@@ -33,18 +33,20 @@ import queryString from "query-string";
 
 export default class Calculator extends React.Component {
   static propTypes = {
-    msrp: PropTypes.number,
-    sellingPrice: PropTypes.number,
-    rv: PropTypes.number,
-    isRVPercent: PropTypes.bool,
-    mf: PropTypes.number,
-    leaseTerm: PropTypes.number,
-    salesTax: PropTypes.number,
-    dealerFees: PropTypes.number,
-    governmentFees: PropTypes.number,
-    incentives: PropTypes.number,
-    downPayment: PropTypes.number,
-    taxMethod: PropTypes.number,
+    lease: PropTypes.shape({
+      msrp: PropTypes.number,
+      sellingPrice: PropTypes.number,
+      rv: PropTypes.number,
+      isRVPercent: PropTypes.bool,
+      mf: PropTypes.number,
+      leaseTerm: PropTypes.number,
+      salesTax: PropTypes.number,
+      dealerFees: PropTypes.number,
+      governmentFees: PropTypes.number,
+      incentives: PropTypes.number,
+      downPayment: PropTypes.number,
+      taxMethod: PropTypes.number,
+    }),
     finance: PropTypes.shape({
       msrp: PropTypes.number,
       sellingPrice: PropTypes.number,
@@ -60,25 +62,28 @@ export default class Calculator extends React.Component {
   };
 
   static defaultProps = {
-    ...DUMMY_DEFAULT_LEASE_DATA,
+    lease: DUMMY_DEFAULT_LEASE_DATA,
     finance: DUMMY_DEFAULT_FINANCE_DATA,
   };
 
   state = {
-    fields: {
-      ...this.props,
-    },
-    finance: {
-      fields: {
-        ...this.props.finance,
-      },
+    lease: {
+      fields: { ...this.props.lease },
       results: {},
     },
-    results: {},
+    finance: {
+      fields: { ...this.props.finance },
+      results: {},
+    },
     isLoading: false,
     shareButtonLoading: false,
     shareButtonHelperText: SHARE_BUTTON_HELPER_TEXT,
     // Whether calculator is set for leasing or financing
+    //chage not boolean
+    //chage not boolean
+    //chage not boolean
+    //chage not boolean
+    //chage not boolean
     isCalculatorType: CALCULATOR_TYPE_LEASE,
   };
 
@@ -87,7 +92,7 @@ export default class Calculator extends React.Component {
     if (queryStringData) {
       this.calculateLease(queryStringData);
     } else {
-      this.calculateLease(this.props);
+      this.calculateLease(this.props.lease);
     }
   }
 
@@ -111,6 +116,7 @@ export default class Calculator extends React.Component {
   calculateLease = (data) => {
     const leaseCalculator = new LeaseCalculator();
     const { incentives, dealerFees, governmentFees, make, ...rest } = data;
+
     let results;
 
     try {
@@ -131,23 +137,25 @@ export default class Calculator extends React.Component {
     const offMsrp = results.getDiscountOffMsrpPercentage();
     const driveOffDetails = results.getDriveOffPaymentBreakdown();
     this.setState({
-      fields: { ...data },
-      results: {
-        msrpPercentage,
-        offMsrp,
-        RVValue: results.getRVValue(),
-        RVPercent: results.getRVPercentage(),
-        apr: results.getAPR(),
-        totalCost: results.getTotalLeaseCost(),
-        monthlyPaymentPreTax: results.getMonthlyPaymentPreTax(),
-        monthlyPayment: results.getMonthlyPayment(),
-        isMsrpPercentageThreshold:
-          msrpPercentage <= MONTHLY_PAYMENT_TO_MSRP_THRESHOLD,
-        isOffMsrpThreshold: offMsrp >= OFF_MSRP_THRESHOLD,
-        driveOff: results.getDriveOffPayment(),
-        acquisitionFee: results.getAcquisitionFee(),
-        dispositionFee: results.getDispositionFee(),
-        driveOffDetails: driveOffDetails,
+      lease: {
+        fields: { ...data },
+        results: {
+          msrpPercentage,
+          offMsrp,
+          RVValue: results.getRVValue(),
+          RVPercent: results.getRVPercentage(),
+          apr: results.getAPR(),
+          totalCost: results.getTotalLeaseCost(),
+          monthlyPaymentPreTax: results.getMonthlyPaymentPreTax(),
+          monthlyPayment: results.getMonthlyPayment(),
+          isMsrpPercentageThreshold:
+            msrpPercentage <= MONTHLY_PAYMENT_TO_MSRP_THRESHOLD,
+          isOffMsrpThreshold: offMsrp >= OFF_MSRP_THRESHOLD,
+          driveOff: results.getDriveOffPayment(),
+          acquisitionFee: results.getAcquisitionFee(),
+          dispositionFee: results.getDispositionFee(),
+          driveOffDetails: driveOffDetails,
+        },
       },
     });
   };
@@ -176,20 +184,25 @@ export default class Calculator extends React.Component {
   };
 
   showSelectedMake = () => {
-    const make = MAKE.find((m) => m.id === this.state.fields.make)?.displayName;
+    const make = MAKE.find(
+      (m) => m.id === this.state.lease.fields.make
+    )?.displayName;
     return make ? make : "Select Make";
   };
 
   handleDropDownClick = (make) => {
     this.setState(
       {
-        fields: {
-          ...this.state.fields,
-          make: make.id,
+        lease: {
+          fields: {
+            ...this.state.lease.fields,
+            make: make.id,
+          },
+          results: { ...this.state.lease.results },
         },
       },
       () => {
-        this.calculateLease(this.state.fields);
+        this.calculateLease(this.state.lease.fields);
       }
     );
   };
@@ -205,7 +218,7 @@ export default class Calculator extends React.Component {
     state.fields.taxMethod = e.target.value;
     this.setState(state, () => {
       this.state.isCalculatorType === CALCULATOR_TYPE_LEASE
-        ? this.calculateLease(this.state.fields)
+        ? this.calculateLease(this.state.lease.fields)
         : this.calculateFinance(this.state.finance.fields);
     });
   };
@@ -213,9 +226,9 @@ export default class Calculator extends React.Component {
   debounce = _.debounce((value, field) => {
     const state = { ...this.state };
     if (this.state.isCalculatorType === CALCULATOR_TYPE_LEASE) {
-      state.fields[field] = value;
+      state.lease.fields[field] = value;
       this.setState(state, () => {
-        this.calculateLease(this.state.fields);
+        this.calculateLease(this.state.lease.fields);
       });
     } else {
       state.finance.fields[field] = value;
@@ -227,8 +240,14 @@ export default class Calculator extends React.Component {
 
   handleShareCalculation = () => {
     this.setState({ shareButtonLoading: true });
-    const { isRVPercent, ...data } = this.state.fields;
+    const { isRVPercent, ...data } = this.state.lease.fields;
     const query = queryString.stringify(data);
+    const queryFinance = queryString.stringify(this.state.finance.fields);
+
+    console.log("this.state.lease.fields", this.state.lease.fields);
+    // console.log("query", query);
+    // console.log("queryFinance", queryFinance);
+
     const url = `${window.location.origin}${window.location.pathname}?${query}`;
 
     if (navigator.permissions) {
@@ -313,8 +332,8 @@ export default class Calculator extends React.Component {
               />
               {this.state.isCalculatorType === CALCULATOR_TYPE_LEASE ? (
                 <LeaseCalculatorFields
-                  fields={this.state.fields}
-                  results={this.state.results}
+                  fields={this.state.lease.fields}
+                  results={this.state.lease.results}
                   handleDropDownClick={this.handleDropDownClick}
                   handleChange={this.handleChange}
                   handleClick={this.handleClick}
@@ -337,7 +356,7 @@ export default class Calculator extends React.Component {
               <div className={"sticky"}>
                 {this.state.isCalculatorType === CALCULATOR_TYPE_LEASE ? (
                   <LeaseCalculatorResults
-                    results={this.state.results}
+                    results={this.state.lease.results}
                     isLoading={this.state.isLoading}
                   />
                 ) : (
