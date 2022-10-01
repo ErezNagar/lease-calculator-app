@@ -230,7 +230,6 @@ export default class Calculator extends React.Component {
         this.calculateLease(this.state.fields);
       });
     } else {
-      console.log(this.state.finance.fields);
       state.finance.fields[field] = value;
       this.setState(state, () => {
         this.calculateFinance(this.state.finance.fields);
@@ -743,6 +742,13 @@ export default class Calculator extends React.Component {
                               onChange={this.handleChange}
                             />
                           </Col>
+                          <Row gutter={[8, 0]} align="middle">
+                            <Col className={"text-align-left"}>
+                              {
+                                "Non-governmental fees (dealer doc fee, dealer add-ons, etc.)"
+                              }
+                            </Col>
+                          </Row>
                         </Row>
                         <Row gutter={[8, 8]} align="middle">
                           <Col xs={10} sm={8} className={"text-align-left"}>
@@ -754,6 +760,13 @@ export default class Calculator extends React.Component {
                               value={this.state.finance.fields.untaxableFees}
                               onChange={this.handleChange}
                             />
+                          </Col>
+                        </Row>
+                        <Row gutter={[8, 0]} align="middle">
+                          <Col className={"text-align-left"}>
+                            {
+                              "Non-taxable fees (license, registration and other governmental fees)"
+                            }
                           </Col>
                         </Row>
                       </>
