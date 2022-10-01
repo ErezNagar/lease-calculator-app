@@ -57,7 +57,7 @@ export default class Calculator extends React.Component {
     incentives: PropTypes.number,
     downPayment: PropTypes.number,
     taxMethod: PropTypes.number,
-    finance: {
+    finance: PropTypes.shape({
       msrp: PropTypes.number,
       sellingPrice: PropTypes.number,
       salesTax: PropTypes.number,
@@ -68,7 +68,7 @@ export default class Calculator extends React.Component {
       downPayment: PropTypes.number,
       tradeIn: PropTypes.number,
       rebates: PropTypes.number,
-    },
+    }),
   };
 
   static defaultProps = {
