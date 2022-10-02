@@ -51,7 +51,7 @@ const LeaseCalculatorResults = ({ results, isLoading }) => (
         </Row>
         <Row gutter={results.driveOffDetails ? [8, 0] : [8, 8]} align="middle">
           <Col xs={13} sm={10} className={"text-align-left"}>
-            {"Drive off:"}
+            {"Due At Signing:"}
           </Col>
           <Col xs={11} sm={14}>
             <Fade show={!isLoading} fadeInOnly>

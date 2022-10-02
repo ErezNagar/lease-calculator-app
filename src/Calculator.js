@@ -217,11 +217,9 @@ export default class Calculator extends React.Component {
 
   handleTaxChange = (e) => {
     const state = { ...this.state };
-    state.fields.taxMethod = e.target.value;
+    state.lease.fields.taxMethod = e.target.value;
     this.setState(state, () => {
-      this.state.calculatorType === CALCULATOR_TYPE_LEASE
-        ? this.calculateLease(this.state.lease.fields)
-        : this.calculateFinance(this.state.finance.fields);
+      this.calculateLease(this.state.lease.fields);
     });
   };
 
