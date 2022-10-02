@@ -24,12 +24,14 @@ import {
 } from "@ant-design/icons";
 import _ from "underscore";
 import ToggledSection from "./components/ToggledSection";
+import Rating from "./components/Rating";
 import LeaseCalculatorFields from "./components/LeaseCalculatorFields";
 import LeaseCalculatorResults from "./components/LeaseCalculatorResults";
 import FinanceCalculatorFields from "./components/FinanceCalculatorFields";
 import FinanceCalculatorResults from "./components/FinanceCalculatorResults";
-
 import queryString from "query-string";
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, child, push } from "firebase/database";
 
 export default class Calculator extends React.Component {
   static propTypes = {
@@ -82,7 +84,21 @@ export default class Calculator extends React.Component {
     calculatorType: CALCULATOR_TYPE_LEASE,
   };
 
+  logRating = (rating) => {
+    const fbDB = getDatabase();
+    push(child(ref(fbDB), "rating"), {
+      dateTime: new Date().toString(),
+      rating,
+    });
+  };
+
   componentDidMount() {
+    initializeApp({
+      apiKey: process.env.REACT_APP_FB_API_KEY,
+      authDomain: process.env.REACT_APP_FB_AUTH_DOMAIN,
+      databaseURL: process.env.REACT_APP_FB_DB_URL,
+    });
+
     const queryStringData = this.getQueryString();
     if (queryStringData) {
       if (queryStringData.type === CALCULATOR_TYPE_LEASE) {
@@ -118,7 +134,6 @@ export default class Calculator extends React.Component {
   calculateLease = (data) => {
     const leaseCalculator = new LeaseCalculator();
     const { incentives, dealerFees, governmentFees, make, ...rest } = data;
-
     let results;
 
     try {
@@ -383,6 +398,11 @@ export default class Calculator extends React.Component {
                 </Row>
                 <Row align="middle" justify="center">
                   <Col>{this.state.shareButtonHelperText}</Col>
+                </Row>
+                <Row gutter={[0, 8]} align="middle" justify="center">
+                  <Col>
+                    <Rating rate={this.logRating} />
+                  </Col>
                 </Row>
               </div>
             </Col>
