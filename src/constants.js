@@ -6,8 +6,8 @@ export const OFF_MSRP_THRESHOLD = 10;
 export const RESULTS_CHANGE_DELAY = 10;
 
 // Calculator type
-export const CALCULATOR_TYPE_LEASE = "lease";
-export const CALCULATOR_TYPE_FINANCE = "finance";
+export const CALCULATOR_TYPE_LEASE = "Lease";
+export const CALCULATOR_TYPE_FINANCE = "Finance";
 
 export const ESC_KEY = 27;
 export const RIGHT_KEY = 39;

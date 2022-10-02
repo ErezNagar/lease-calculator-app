@@ -90,7 +90,12 @@ export default class Calculator extends React.Component {
   componentDidMount() {
     const queryStringData = this.getQueryString();
     if (queryStringData) {
-      this.calculateLease(queryStringData);
+      if (queryStringData.type === CALCULATOR_TYPE_LEASE) {
+        this.calculateLease(queryStringData);
+      } else {
+        this.setState({ isCalculatorType: CALCULATOR_TYPE_FINANCE });
+        this.calculateFinance(queryStringData);
+      }
     } else {
       this.calculateLease(this.props.lease);
     }
@@ -102,10 +107,12 @@ export default class Calculator extends React.Component {
       return null;
     }
     Object.keys(query).forEach((key) => {
-      if (key === "mf" || key === "salesTax") {
+      if (key === "mf" || key === "salesTax" || key === "finSalesTax") {
         query[key] = parseFloat(query[key]);
       } else if (key === "isZeroDriveoff") {
         query[key] = query[key] === "true";
+      } else if (key === "type") {
+        query[key] = query[key];
       } else {
         query[key] = parseInt(query[key]);
       }
@@ -240,14 +247,13 @@ export default class Calculator extends React.Component {
 
   handleShareCalculation = () => {
     this.setState({ shareButtonLoading: true });
-    const { isRVPercent, ...data } = this.state.lease.fields;
-    const query = queryString.stringify(data);
-    const queryFinance = queryString.stringify(this.state.finance.fields);
-
-    console.log("this.state.lease.fields", this.state.lease.fields);
-    // console.log("query", query);
-    // console.log("queryFinance", queryFinance);
-
+    const { isRVPercent, ...leaseFields } = this.state.lease.fields;
+    const fields =
+      this.state.isCalculatorType === CALCULATOR_TYPE_LEASE
+        ? leaseFields
+        : this.state.finance.fields;
+    fields.type = this.state.isCalculatorType;
+    const query = queryString.stringify({ ...fields });
     const url = `${window.location.origin}${window.location.pathname}?${query}`;
 
     if (navigator.permissions) {
@@ -298,7 +304,11 @@ export default class Calculator extends React.Component {
           type === "Lease" ? CALCULATOR_TYPE_LEASE : CALCULATOR_TYPE_FINANCE,
       },
       () => {
-        this.calculateFinance(this.state.finance.fields);
+        if (this.state.isCalculatorType === CALCULATOR_TYPE_LEASE) {
+          this.calculateLease(this.state.lease.fields);
+        } else {
+          this.calculateFinance(this.state.finance.fields);
+        }
       }
     );
   };
@@ -326,6 +336,7 @@ export default class Calculator extends React.Component {
                     block
                     size="large"
                     options={["Lease", "Finance"]}
+                    value={this.state.isCalculatorType}
                     onChange={this.handleChangeCalculatorType}
                   />
                 }
