@@ -310,8 +310,7 @@ export default class Calculator extends React.Component {
     return (
       <div className="pageContainer">
         <header>
-          <h1>LeaseOmeteR</h1>
-          <p>{"Car lease calculator for people in a hurry"}</p>
+          <h1>Car Lease & Finance Calculator</h1>
         </header>
         <div className="pageBody">
           <Row justify="center">
