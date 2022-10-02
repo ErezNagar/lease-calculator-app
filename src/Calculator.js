@@ -79,12 +79,7 @@ export default class Calculator extends React.Component {
     shareButtonLoading: false,
     shareButtonHelperText: SHARE_BUTTON_HELPER_TEXT,
     // Whether calculator is set for leasing or financing
-    //chage not boolean
-    //chage not boolean
-    //chage not boolean
-    //chage not boolean
-    //chage not boolean
-    isCalculatorType: CALCULATOR_TYPE_LEASE,
+    calculatorType: CALCULATOR_TYPE_LEASE,
   };
 
   componentDidMount() {
@@ -93,7 +88,7 @@ export default class Calculator extends React.Component {
       if (queryStringData.type === CALCULATOR_TYPE_LEASE) {
         this.calculateLease(queryStringData);
       } else {
-        this.setState({ isCalculatorType: CALCULATOR_TYPE_FINANCE });
+        this.setState({ calculatorType: CALCULATOR_TYPE_FINANCE });
         this.calculateFinance(queryStringData);
       }
     } else {
@@ -224,7 +219,7 @@ export default class Calculator extends React.Component {
     const state = { ...this.state };
     state.fields.taxMethod = e.target.value;
     this.setState(state, () => {
-      this.state.isCalculatorType === CALCULATOR_TYPE_LEASE
+      this.state.calculatorType === CALCULATOR_TYPE_LEASE
         ? this.calculateLease(this.state.lease.fields)
         : this.calculateFinance(this.state.finance.fields);
     });
@@ -232,7 +227,7 @@ export default class Calculator extends React.Component {
 
   debounce = _.debounce((value, field) => {
     const state = { ...this.state };
-    if (this.state.isCalculatorType === CALCULATOR_TYPE_LEASE) {
+    if (this.state.calculatorType === CALCULATOR_TYPE_LEASE) {
       state.lease.fields[field] = value;
       this.setState(state, () => {
         this.calculateLease(this.state.lease.fields);
@@ -249,10 +244,10 @@ export default class Calculator extends React.Component {
     this.setState({ shareButtonLoading: true });
     const { isRVPercent, ...leaseFields } = this.state.lease.fields;
     const fields =
-      this.state.isCalculatorType === CALCULATOR_TYPE_LEASE
+      this.state.calculatorType === CALCULATOR_TYPE_LEASE
         ? leaseFields
         : this.state.finance.fields;
-    fields.type = this.state.isCalculatorType;
+    fields.type = this.state.calculatorType;
     const query = queryString.stringify({ ...fields });
     const url = `${window.location.origin}${window.location.pathname}?${query}`;
 
@@ -300,11 +295,11 @@ export default class Calculator extends React.Component {
   handleChangeCalculatorType = (type) => {
     this.setState(
       {
-        isCalculatorType:
+        calculatorType:
           type === "Lease" ? CALCULATOR_TYPE_LEASE : CALCULATOR_TYPE_FINANCE,
       },
       () => {
-        if (this.state.isCalculatorType === CALCULATOR_TYPE_LEASE) {
+        if (this.state.calculatorType === CALCULATOR_TYPE_LEASE) {
           this.calculateLease(this.state.lease.fields);
         } else {
           this.calculateFinance(this.state.finance.fields);
@@ -336,12 +331,12 @@ export default class Calculator extends React.Component {
                     block
                     size="large"
                     options={["Lease", "Finance"]}
-                    value={this.state.isCalculatorType}
+                    value={this.state.calculatorType}
                     onChange={this.handleChangeCalculatorType}
                   />
                 }
               />
-              {this.state.isCalculatorType === CALCULATOR_TYPE_LEASE ? (
+              {this.state.calculatorType === CALCULATOR_TYPE_LEASE ? (
                 <LeaseCalculatorFields
                   fields={this.state.lease.fields}
                   results={this.state.lease.results}
@@ -365,7 +360,7 @@ export default class Calculator extends React.Component {
 
             <Col xs={24} lg={11}>
               <div className={"sticky"}>
-                {this.state.isCalculatorType === CALCULATOR_TYPE_LEASE ? (
+                {this.state.calculatorType === CALCULATOR_TYPE_LEASE ? (
                   <LeaseCalculatorResults
                     results={this.state.lease.results}
                     isLoading={this.state.isLoading}
