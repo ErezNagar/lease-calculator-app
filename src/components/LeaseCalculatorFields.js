@@ -290,12 +290,12 @@ const LeaseCalculatorFields = ({
                     value: TAXATION_METHOD_MONTHLY,
                   },
                   {
-                    label: "Tax applied on sales price (VA only)",
+                    label: "Tax applied on sales price (MD, VA, TX)",
                     value: TAXATION_METHOD_SALE_PRICE,
                   },
                   {
                     label:
-                      "Tax applied on total lease payments (e.g. NY, NJ, MN, OH, GA)",
+                      "Tax applied on total lease payments (e.g. GA, NY, NJ, MN, OH)",
                     value: TAXATION_METHOD_TOTAL,
                   },
                 ]}
