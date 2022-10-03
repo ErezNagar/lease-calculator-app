@@ -114,7 +114,7 @@ export default class Calculator extends React.Component {
 
   getQueryString = () => {
     const query = queryString.parse(window.location.search);
-    if (Object.keys(query).length === 0) {
+    if (Object.keys(query).length === 0 || Object.keys(query)[0] === "fbclid") {
       return null;
     }
     Object.keys(query).forEach((key) => {
