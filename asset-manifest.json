@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/lease-calculator-app/static/css/main.01a3f2f7.css",
-    "main.js": "/lease-calculator-app/static/js/main.5cde126c.js",
+    "main.css": "/lease-calculator-app/static/css/main.b9421816.css",
+    "main.js": "/lease-calculator-app/static/js/main.06779503.js",
     "index.html": "/lease-calculator-app/index.html",
-    "main.01a3f2f7.css.map": "/lease-calculator-app/static/css/main.01a3f2f7.css.map",
-    "main.5cde126c.js.map": "/lease-calculator-app/static/js/main.5cde126c.js.map"
+    "main.b9421816.css.map": "/lease-calculator-app/static/css/main.b9421816.css.map",
+    "main.06779503.js.map": "/lease-calculator-app/static/js/main.06779503.js.map"
   },
   "entrypoints": [
-    "static/css/main.01a3f2f7.css",
-    "static/js/main.5cde126c.js"
+    "static/css/main.b9421816.css",
+    "static/js/main.06779503.js"
   ]
 }
