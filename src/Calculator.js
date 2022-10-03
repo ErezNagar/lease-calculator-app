@@ -331,7 +331,7 @@ export default class Calculator extends React.Component {
           <Row justify="center">
             <Col className="intro-text">
               {
-                "The calculator is auto-filled with example lease numbers. Enter yours to better understand your deal."
+                "The calculator is auto-filled with example numbers. Enter yours to better understand your deal."
               }
             </Col>
           </Row>

@@ -25,7 +25,7 @@ header {
 }
 header h1 {
   color: white;
-  font-size: 3em;
+  font-size: 2em;
   font-weight: 200;
 }
 header p {
@@ -152,6 +152,9 @@ footer a {
 @media only screen and (max-device-width: 768px) {
   .pageBody {
     margin: 0 1%;
+  }
+  header {
+    padding: 0.5em;
   }
   .monthly-payment {
     font-size: 1.1em;
