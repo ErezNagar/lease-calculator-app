@@ -1,6 +1,6 @@
 # Car Lease Calculator App
 
-[![Car Lease Calculator App](/demo-image.png)](https://bit.ly/DealCalc)
+[![Car Lease & Finance Calculator App](/demo-image.png)](https://bit.ly/DealCalc)
 
 A car lease & finance calculator web app for easily knowing whether you're getting a good deal on a lease.
 
