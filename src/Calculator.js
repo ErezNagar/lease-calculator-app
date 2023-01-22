@@ -265,13 +265,26 @@ export default class Calculator extends React.Component {
     const url = `${window.location.origin}${window.location.pathname}?${query}`;
 
     if (navigator.permissions) {
-      navigator.permissions?.query({ name: "clipboard-write" }).then((res) => {
-        if (res.state === "granted" || res.state === "prompt") {
-          navigator.clipboard.writeText(url).then(() => {
-            this.showShareSuccess();
-          });
-        }
-      });
+      navigator.permissions
+        ?.query({ name: "clipboard-write" })
+        .then((res) => {
+          if (res.state === "granted" || res.state === "prompt") {
+            navigator.clipboard.writeText(url).then(() => {
+              this.showShareSuccess();
+            });
+          }
+        })
+        // For safari on iOS
+        .catch((e) => {
+          var textField = document.createElement("textarea");
+          textField.innerText = url;
+          document.body.appendChild(textField);
+          textField.select();
+          document.execCommand("copy");
+          textField.remove();
+          this.setState({ testSharing: "test" });
+          this.showShareSuccess();
+        });
     } else {
       var textField = document.createElement("textarea");
       textField.innerText = url;
